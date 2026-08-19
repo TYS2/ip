@@ -4,13 +4,10 @@ import java.util.Scanner;
 public class Bob {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ArrayList<String> arr = new ArrayList<>();
-        int size=0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
-        String message = "Hello! I'm Bob.\n"
-                + "What can I do for you? \n"
-                + "Bye. Hope to see you again soon!";
-        System.out.println(message);
+        System.out.println("Hello! I'm Bob.");
+        System.out.println("What can I do for you?");
 
         while (true) {
             String command = scanner.nextLine();
@@ -21,17 +18,68 @@ public class Bob {
             }
 
             if (command.equals("list")) {
-                for (int i=0; i<size; i++) {
-                    System.out.printf("%d" + " " + "%s" + "\n", i + 1, arr.get(i));
+                System.out.println("Here are the tasks in your list:");
+
+                for (int i = 0; i < tasks.size(); i++) {
+                    System.out.println((i + 1) + "." + tasks.get(i));
                 }
+
                 continue;
             }
 
-            size+=1;
-            arr.add(command);
-            System.out.println("added: "+ command);
+            if (command.startsWith("mark ")) {
+                int taskNumber = Integer.parseInt(command.substring(5));
+                Task task = tasks.get(taskNumber - 1);
+
+                task.markDone();
+
+                System.out.println("Nice! I've marked this task as done:");
+                System.out.println("  " + task);
+
+                continue;
+            }
+
+            if (command.startsWith("unmark ")) {
+                int taskNumber = Integer.parseInt(command.substring(7));
+                Task task = tasks.get(taskNumber - 1);
+
+                task.markUndone();
+
+                System.out.println("OK, I've marked this task as not done yet:");
+                System.out.println("  " + task);
+
+                continue;
+            }
+
+            Task task = new Task(command);
+            tasks.add(task);
+
+            System.out.println("added: " + task);
         }
 
         scanner.close();
+    }
+
+    public static class Task {
+        private String item;
+        private boolean done;
+
+        public Task(String item) {
+            this.item = item;
+            this.done = false;
+        }
+
+        public void markDone() {
+            this.done = true;
+        }
+
+        public void markUndone() {
+            this.done = false;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + (done ? "X" : " ") + "] " + item;
+        }
     }
 }
