@@ -28,6 +28,23 @@ public class Bob {
                     continue;
                 }
 
+                if (command.startsWith("delete ")){
+                    int taskNumber = Integer.parseInt(command.substring(7));
+
+                    if (taskNumber < 1 || taskNumber > tasks.size()) {
+                        throw new BobException("That task number does not exist.");
+                    }
+
+                    Task task = tasks.get(taskNumber - 1);
+                    tasks.remove(taskNumber-1);
+
+                    System.out.println("Noted. I've removed this task:");
+                    System.out.println(" " + task);
+                    System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+
+                    continue;
+                }
+
                 if (command.startsWith("mark ")) {
                     int taskNumber = Integer.parseInt(command.substring(5));
 
