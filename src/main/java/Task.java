@@ -16,8 +16,16 @@ public class Task {
         this.done = false;
     }
 
+    public boolean getDone(){
+        return this.done;
+    }
+
+    public String getItem(){
+        return this.item;
+    }
+
     @Override
     public String toString() {
-        return "[" + (done ? "X" : " ") + "] " + item;
+        return "[T][" + (done ? "X" : " ") + "] " + item;
     }
 }
