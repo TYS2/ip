@@ -1,3 +1,4 @@
+/** The command keywords understood by the task manager. */
 public enum CommandType {
     BYE,
     LIST,
