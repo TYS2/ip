@@ -12,6 +12,7 @@ public class Bob {
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
+        Parser parser = new Parser();
         ArrayList<Task> tasks;
 
         try {
@@ -28,7 +29,7 @@ public class Bob {
             String command = ui.readCommand();
 
             try {
-                CommandType commandType = getCommandType(command);
+                CommandType commandType = parser.parse(command);
 
                 switch (commandType) {
 
@@ -79,45 +80,6 @@ public class Bob {
         }
 
         ui.close();
-    }
-
-    /**
-     * Determines which command the user entered from its first word.
-     *
-     * @param command the complete command entered by the user
-     * @return the command type represented by the command keyword
-     */
-    public static CommandType getCommandType(String command) {
-        String keyword = command.split(" ", 2)[0];
-
-        switch (keyword) {
-            case "bye":
-                return CommandType.BYE;
-
-            case "list":
-                return CommandType.LIST;
-
-            case "delete":
-                return CommandType.DELETE;
-
-            case "mark":
-                return CommandType.MARK;
-
-            case "unmark":
-                return CommandType.UNMARK;
-
-            case "todo":
-                return CommandType.TODO;
-
-            case "deadline":
-                return CommandType.DEADLINE;
-
-            case "event":
-                return CommandType.EVENT;
-
-            default:
-                return CommandType.UNKNOWN;
-        }
     }
 
     /**
