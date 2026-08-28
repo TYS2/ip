@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-/** Saves and loads tasks from the project's local data file. */
-public final class TaskStorage {
-    private static final Path FILE = Path.of("./data/duke.txt");
+/** Loads and saves tasks from the application's data file. */
+public class Storage {
+    private final Path file;
 
-    private TaskStorage() {
-        // Utility class; do not instantiate.
+    /** Creates storage backed by the supplied file path. */
+    public Storage(String filePath) {
+        file = Path.of(filePath);
     }
 
     /**
@@ -21,15 +22,15 @@ public final class TaskStorage {
      *         not exist.
      * @throws BobException if the file cannot be read.
      */
-    public static ArrayList<Task> load() throws BobException {
+    public ArrayList<Task> load() throws BobException {
         ArrayList<Task> tasks = new ArrayList<>();
 
-        if (!Files.exists(FILE)) {
+        if (!Files.exists(file)) {
             return tasks;
         }
 
         try {
-            for (String line : Files.readAllLines(FILE)) {
+            for (String line : Files.readAllLines(file)) {
                 Task task = parseTask(line);
                 if (task != null) {
                     tasks.add(task);
@@ -114,15 +115,17 @@ public final class TaskStorage {
      * @param tasks tasks to save.
      * @throws BobException if the directory or file cannot be written.
      */
-    public static void save(ArrayList<Task> tasks) throws BobException {
+    public void save(ArrayList<Task> tasks) throws BobException {
         ArrayList<String> lines = new ArrayList<>();
         for (Task task : tasks) {
             lines.add(task.toStorageString());
         }
 
         try {
-            Files.createDirectories(FILE.getParent());
-            Files.write(FILE, lines);
+            if (file.getParent() != null) {
+                Files.createDirectories(file.getParent());
+            }
+            Files.write(file, lines);
         } catch (IOException e) {
             throw new BobException("I couldn't save your tasks.");
         }

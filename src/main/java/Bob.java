@@ -5,21 +5,38 @@ import java.time.LocalDate;
  * Class containing the chatbot
  */
 public class Bob {
+    private final Storage storage;
+    private TaskList tasks;
+    private final Ui ui;
+    private final Parser parser;
+
+    /** Creates Bob using the supplied task data file. */
+    public Bob(String filePath) {
+        ui = new Ui();
+        parser = new Parser();
+        storage = new Storage(filePath);
+        try {
+            tasks = new TaskList(storage.load());
+        } catch (BobException e) {
+            ui.showError(e.getMessage());
+            tasks = new TaskList();
+        }
+    }
+
+    /** Starts the interactive task-manager application. */
+    public void run() {
+        // The existing command loop remains in main for this increment.
+        mainLoop();
+    }
 
     /**
      * Starts the interactive task-manager application.
      */
     public static void main(String[] args) {
-        Ui ui = new Ui();
-        Parser parser = new Parser();
-        TaskList tasks;
+        new Bob("./data/duke.txt").run();
+    }
 
-        try {
-            tasks = new TaskList(TaskStorage.load());
-        } catch (BobException e) {
-            tasks = new TaskList();
-            ui.showError(e.getMessage());
-        }
+    private void mainLoop() {
 
         ui.showWelcome();
 
@@ -41,27 +58,27 @@ public class Bob {
                         break;
 
                     case DELETE:
-                        deleteTask(command, tasks, ui);
+                        deleteTask(command, tasks, ui, storage);
                         break;
 
                     case MARK:
-                        markTask(command, tasks, ui);
+                        markTask(command, tasks, ui, storage);
                         break;
 
                     case UNMARK:
-                        unmarkTask(command, tasks, ui);
+                        unmarkTask(command, tasks, ui, storage);
                         break;
 
                     case TODO:
-                        addTodo(command, tasks, ui);
+                        addTodo(command, tasks, ui, storage);
                         break;
 
                     case DEADLINE:
-                        addDeadline(command, tasks, ui);
+                        addDeadline(command, tasks, ui, storage);
                         break;
 
                     case EVENT:
-                        addEvent(command, tasks, ui);
+                        addEvent(command, tasks, ui, storage);
                         break;
 
                     case UNKNOWN:
@@ -104,7 +121,7 @@ public class Bob {
     public static void deleteTask(
             String command,
             TaskList tasks,
-            Ui ui) throws BobException {
+            Ui ui, Storage storage) throws BobException {
 
         String input = command.substring(6).trim();
 
@@ -119,7 +136,7 @@ public class Bob {
         tasks.checkTaskNumber(taskNumber);
 
         Task task = tasks.remove(taskNumber - 1);
-        TaskStorage.save(tasks.asList());
+        storage.save(tasks.asList());
 
         ui.show("Noted. I've removed this task:");
         ui.show("  " + task);
@@ -138,7 +155,7 @@ public class Bob {
     public static void markTask(
             String command,
             TaskList tasks,
-            Ui ui) throws BobException {
+            Ui ui, Storage storage) throws BobException {
 
         String input = command.substring(4).trim();
 
@@ -154,7 +171,7 @@ public class Bob {
 
         Task task = tasks.get(taskNumber - 1);
         task.markDone();
-        TaskStorage.save(tasks.asList());
+        storage.save(tasks.asList());
 
         ui.show("Nice! I've marked this task as done:");
         ui.show("  " + task);
@@ -170,7 +187,7 @@ public class Bob {
     public static void unmarkTask(
             String command,
             TaskList tasks,
-            Ui ui) throws BobException {
+            Ui ui, Storage storage) throws BobException {
 
         String input = command.substring(6).trim();
 
@@ -186,7 +203,7 @@ public class Bob {
 
         Task task = tasks.get(taskNumber - 1);
         task.markUndone();
-        TaskStorage.save(tasks.asList());
+        storage.save(tasks.asList());
 
         ui.show(
                 "OK, I've marked this task as not done yet:"
@@ -204,7 +221,7 @@ public class Bob {
     public static void addTodo(
             String command,
             TaskList tasks,
-            Ui ui) throws BobException {
+            Ui ui, Storage storage) throws BobException {
 
         String description = command.substring(4).trim();
 
@@ -216,7 +233,7 @@ public class Bob {
 
         Task task = new Task(description);
         tasks.add(task);
-        TaskStorage.save(tasks.asList());
+        storage.save(tasks.asList());
 
         ui.show("Got it. I've added this task:");
         ui.show("  " + task);
@@ -235,7 +252,7 @@ public class Bob {
     public static void addDeadline(
             String command,
             TaskList tasks,
-            Ui ui) throws BobException {
+            Ui ui, Storage storage) throws BobException {
 
         String input = command.substring(8).trim();
 
@@ -272,7 +289,7 @@ public class Bob {
             LocalDate endDate = LocalDate.parse(end);
             Task task = new Deadline(description, endDate);
             tasks.add(task);
-            TaskStorage.save(tasks.asList());
+            storage.save(tasks.asList());
 
             ui.show("Got it. I've added this task:");
             ui.show("  " + task);
@@ -296,7 +313,7 @@ public class Bob {
     public static void addEvent(
             String command,
             TaskList tasks,
-            Ui ui) throws BobException {
+            Ui ui, Storage storage) throws BobException {
 
         String input = command.substring(5).trim();
 
@@ -342,7 +359,7 @@ public class Bob {
 
             Task task = new Event((description), fromDate, toDate);
             tasks.add(task);
-            TaskStorage.save(tasks.asList());
+            storage.save(tasks.asList());
 
             ui.show("Got it. I've added this task:");
             ui.show("  " + task);
