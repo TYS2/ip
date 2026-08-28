@@ -1,3 +1,5 @@
+package Bob;
+
 import java.util.Scanner;
 
 /** Handles input from and output to the user. */
