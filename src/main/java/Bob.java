@@ -1,6 +1,5 @@
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.time.LocalDate;
 
 /**
@@ -12,22 +11,21 @@ public class Bob {
      * Starts the interactive task-manager application.
      */
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Ui ui = new Ui();
         ArrayList<Task> tasks;
 
         try {
             tasks = TaskStorage.load();
         } catch (BobException e) {
             tasks = new ArrayList<>();
-            System.out.println("OOPS!!! " + e.getMessage());
+            ui.showError(e.getMessage());
         }
 
-        System.out.println("Hello! I'm Bob.");
-        System.out.println("What can I do for you?");
+        ui.showWelcome();
 
         mainLoop:
         while (true) {
-            String command = scanner.nextLine();
+            String command = ui.readCommand();
 
             try {
                 CommandType commandType = getCommandType(command);
@@ -35,35 +33,35 @@ public class Bob {
                 switch (commandType) {
 
                     case BYE:
-                        System.out.println("Bye. Hope to see you again soon!");
+                        ui.show("Bye. Hope to see you again soon!");
                         break mainLoop;
 
                     case LIST:
-                        listTasks(tasks);
+                        listTasks(tasks, ui);
                         break;
 
                     case DELETE:
-                        deleteTask(command, tasks);
+                        deleteTask(command, tasks, ui);
                         break;
 
                     case MARK:
-                        markTask(command, tasks);
+                        markTask(command, tasks, ui);
                         break;
 
                     case UNMARK:
-                        unmarkTask(command, tasks);
+                        unmarkTask(command, tasks, ui);
                         break;
 
                     case TODO:
-                        addTodo(command, tasks);
+                        addTodo(command, tasks, ui);
                         break;
 
                     case DEADLINE:
-                        addDeadline(command, tasks);
+                        addDeadline(command, tasks, ui);
                         break;
 
                     case EVENT:
-                        addEvent(command, tasks);
+                        addEvent(command, tasks, ui);
                         break;
 
                     case UNKNOWN:
@@ -73,16 +71,14 @@ public class Bob {
                 }
 
             } catch (BobException e) {
-                System.out.println("OOPS!!! " + e.getMessage());
+                ui.showError(e.getMessage());
 
             } catch (NumberFormatException e) {
-                System.out.println(
-                        "OOPS!!! Please enter a valid task number."
-                );
+                ui.showError("Please enter a valid task number.");
             }
         }
 
-        scanner.close();
+        ui.close();
     }
 
     /**
@@ -129,11 +125,11 @@ public class Bob {
      *
      * @param tasks the tasks to display
      */
-    public static void listTasks(ArrayList<Task> tasks) {
-        System.out.println("Here are the tasks in your list:");
+    public static void listTasks(ArrayList<Task> tasks, Ui ui) {
+        ui.show("Here are the tasks in your list:");
 
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + "." + tasks.get(i));
+            ui.show((i + 1) + "." + tasks.get(i));
         }
     }
 
@@ -146,7 +142,8 @@ public class Bob {
      */
     public static void deleteTask(
             String command,
-            ArrayList<Task> tasks) throws BobException {
+            ArrayList<Task> tasks,
+            Ui ui) throws BobException {
 
         String input = command.substring(6).trim();
 
@@ -163,9 +160,9 @@ public class Bob {
         Task task = tasks.remove(taskNumber - 1);
         TaskStorage.save(tasks);
 
-        System.out.println("Noted. I've removed this task:");
-        System.out.println("  " + task);
-        System.out.println(
+        ui.show("Noted. I've removed this task:");
+        ui.show("  " + task);
+        ui.show(
                 "Now you have " + tasks.size() + " tasks in the list."
         );
     }
@@ -179,7 +176,8 @@ public class Bob {
      */
     public static void markTask(
             String command,
-            ArrayList<Task> tasks) throws BobException {
+            ArrayList<Task> tasks,
+            Ui ui) throws BobException {
 
         String input = command.substring(4).trim();
 
@@ -197,8 +195,8 @@ public class Bob {
         task.markDone();
         TaskStorage.save(tasks);
 
-        System.out.println("Nice! I've marked this task as done:");
-        System.out.println("  " + task);
+        ui.show("Nice! I've marked this task as done:");
+        ui.show("  " + task);
     }
 
     /**
@@ -210,7 +208,8 @@ public class Bob {
      */
     public static void unmarkTask(
             String command,
-            ArrayList<Task> tasks) throws BobException {
+            ArrayList<Task> tasks,
+            Ui ui) throws BobException {
 
         String input = command.substring(6).trim();
 
@@ -228,10 +227,10 @@ public class Bob {
         task.markUndone();
         TaskStorage.save(tasks);
 
-        System.out.println(
+        ui.show(
                 "OK, I've marked this task as not done yet:"
         );
-        System.out.println("  " + task);
+        ui.show("  " + task);
     }
 
     /**
@@ -243,7 +242,8 @@ public class Bob {
      */
     public static void addTodo(
             String command,
-            ArrayList<Task> tasks) throws BobException {
+            ArrayList<Task> tasks,
+            Ui ui) throws BobException {
 
         String description = command.substring(4).trim();
 
@@ -257,9 +257,9 @@ public class Bob {
         tasks.add(task);
         TaskStorage.save(tasks);
 
-        System.out.println("Got it. I've added this task:");
-        System.out.println("  " + task);
-        System.out.println(
+        ui.show("Got it. I've added this task:");
+        ui.show("  " + task);
+        ui.show(
                 "Now you have " + tasks.size() + " tasks in the list."
         );
     }
@@ -273,7 +273,8 @@ public class Bob {
      */
     public static void addDeadline(
             String command,
-            ArrayList<Task> tasks) throws BobException {
+            ArrayList<Task> tasks,
+            Ui ui) throws BobException {
 
         String input = command.substring(8).trim();
 
@@ -312,9 +313,9 @@ public class Bob {
             tasks.add(task);
             TaskStorage.save(tasks);
 
-            System.out.println("Got it. I've added this task:");
-            System.out.println("  " + task);
-            System.out.println(
+            ui.show("Got it. I've added this task:");
+            ui.show("  " + task);
+            ui.show(
                     "Now you have " + tasks.size() + " tasks in the list."
             );
         } catch (DateTimeParseException e) {
@@ -333,7 +334,8 @@ public class Bob {
      */
     public static void addEvent(
             String command,
-            ArrayList<Task> tasks) throws BobException {
+            ArrayList<Task> tasks,
+            Ui ui) throws BobException {
 
         String input = command.substring(5).trim();
 
@@ -381,9 +383,9 @@ public class Bob {
             tasks.add(task);
             TaskStorage.save(tasks);
 
-            System.out.println("Got it. I've added this task:");
-            System.out.println("  " + task);
-            System.out.println(
+            ui.show("Got it. I've added this task:");
+            ui.show("  " + task);
+            ui.show(
                     "Now you have " + tasks.size() + " tasks in the list."
             );
         } catch (DateTimeParseException e) {
