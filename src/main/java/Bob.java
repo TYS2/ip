@@ -1,5 +1,4 @@
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.time.LocalDate;
 
 /**
@@ -13,12 +12,12 @@ public class Bob {
     public static void main(String[] args) {
         Ui ui = new Ui();
         Parser parser = new Parser();
-        ArrayList<Task> tasks;
+        TaskList tasks;
 
         try {
-            tasks = TaskStorage.load();
+            tasks = new TaskList(TaskStorage.load());
         } catch (BobException e) {
-            tasks = new ArrayList<>();
+            tasks = new TaskList();
             ui.showError(e.getMessage());
         }
 
@@ -87,7 +86,7 @@ public class Bob {
      *
      * @param tasks the tasks to display
      */
-    public static void listTasks(ArrayList<Task> tasks, Ui ui) {
+    public static void listTasks(TaskList tasks, Ui ui) {
         ui.show("Here are the tasks in your list:");
 
         for (int i = 0; i < tasks.size(); i++) {
@@ -104,7 +103,7 @@ public class Bob {
      */
     public static void deleteTask(
             String command,
-            ArrayList<Task> tasks,
+            TaskList tasks,
             Ui ui) throws BobException {
 
         String input = command.substring(6).trim();
@@ -117,10 +116,10 @@ public class Bob {
 
         int taskNumber = Integer.parseInt(input);
 
-        checkTaskNumber(taskNumber, tasks);
+        tasks.checkTaskNumber(taskNumber);
 
         Task task = tasks.remove(taskNumber - 1);
-        TaskStorage.save(tasks);
+        TaskStorage.save(tasks.asList());
 
         ui.show("Noted. I've removed this task:");
         ui.show("  " + task);
@@ -138,7 +137,7 @@ public class Bob {
      */
     public static void markTask(
             String command,
-            ArrayList<Task> tasks,
+            TaskList tasks,
             Ui ui) throws BobException {
 
         String input = command.substring(4).trim();
@@ -151,11 +150,11 @@ public class Bob {
 
         int taskNumber = Integer.parseInt(input);
 
-        checkTaskNumber(taskNumber, tasks);
+        tasks.checkTaskNumber(taskNumber);
 
         Task task = tasks.get(taskNumber - 1);
         task.markDone();
-        TaskStorage.save(tasks);
+        TaskStorage.save(tasks.asList());
 
         ui.show("Nice! I've marked this task as done:");
         ui.show("  " + task);
@@ -170,7 +169,7 @@ public class Bob {
      */
     public static void unmarkTask(
             String command,
-            ArrayList<Task> tasks,
+            TaskList tasks,
             Ui ui) throws BobException {
 
         String input = command.substring(6).trim();
@@ -183,11 +182,11 @@ public class Bob {
 
         int taskNumber = Integer.parseInt(input);
 
-        checkTaskNumber(taskNumber, tasks);
+        tasks.checkTaskNumber(taskNumber);
 
         Task task = tasks.get(taskNumber - 1);
         task.markUndone();
-        TaskStorage.save(tasks);
+        TaskStorage.save(tasks.asList());
 
         ui.show(
                 "OK, I've marked this task as not done yet:"
@@ -204,7 +203,7 @@ public class Bob {
      */
     public static void addTodo(
             String command,
-            ArrayList<Task> tasks,
+            TaskList tasks,
             Ui ui) throws BobException {
 
         String description = command.substring(4).trim();
@@ -217,7 +216,7 @@ public class Bob {
 
         Task task = new Task(description);
         tasks.add(task);
-        TaskStorage.save(tasks);
+        TaskStorage.save(tasks.asList());
 
         ui.show("Got it. I've added this task:");
         ui.show("  " + task);
@@ -235,7 +234,7 @@ public class Bob {
      */
     public static void addDeadline(
             String command,
-            ArrayList<Task> tasks,
+            TaskList tasks,
             Ui ui) throws BobException {
 
         String input = command.substring(8).trim();
@@ -273,7 +272,7 @@ public class Bob {
             LocalDate endDate = LocalDate.parse(end);
             Task task = new Deadline(description, endDate);
             tasks.add(task);
-            TaskStorage.save(tasks);
+            TaskStorage.save(tasks.asList());
 
             ui.show("Got it. I've added this task:");
             ui.show("  " + task);
@@ -296,7 +295,7 @@ public class Bob {
      */
     public static void addEvent(
             String command,
-            ArrayList<Task> tasks,
+            TaskList tasks,
             Ui ui) throws BobException {
 
         String input = command.substring(5).trim();
@@ -343,7 +342,7 @@ public class Bob {
 
             Task task = new Event((description), fromDate, toDate);
             tasks.add(task);
-            TaskStorage.save(tasks);
+            TaskStorage.save(tasks.asList());
 
             ui.show("Got it. I've added this task:");
             ui.show("  " + task);
@@ -365,14 +364,4 @@ public class Bob {
      * @param tasks the list of available tasks
      * @throws BobException if the task number is outside the list bounds
      */
-    public static void checkTaskNumber(
-            int taskNumber,
-            ArrayList<Task> tasks) throws BobException {
-
-        if (taskNumber < 1 || taskNumber > tasks.size()) {
-            throw new BobException(
-                    "That task number does not exist."
-            );
-        }
-    }
 }
