@@ -3,6 +3,8 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 /** Saves and loads tasks from the project's local data file. */
 public final class TaskStorage {
@@ -71,17 +73,30 @@ public final class TaskStorage {
                 if (parts.length < 4 || parts[3].trim().isEmpty()) {
                     return null;
                 }
-                task = new Deadline(description, parts[3].trim());
+
+                try {
+                    task = new Deadline(
+                            description,
+                            LocalDate.parse(parts[3].trim()));
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
                 break;
+
             case "E":
                 if (parts.length < 5 || parts[3].trim().isEmpty()
                         || parts[4].trim().isEmpty()) {
                     return null;
                 }
-                task = new Event(
-                        description,
-                        parts[3].trim(),
-                        parts[4].trim());
+
+                try {
+                    task = new Event(
+                            description,
+                            LocalDate.parse(parts[3].trim()),
+                            LocalDate.parse(parts[4].trim()));
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
                 break;
             default:
                 return null;

@@ -1,10 +1,16 @@
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.LocalDate;
 
-/** Runs the command-line task manager and coordinates user commands. */
+/**
+ * Class containing the chatbot
+ */
 public class Bob {
 
-    /** Starts the interactive task-manager application. */
+    /**
+     * Starts the interactive task-manager application.
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ArrayList<Task> tasks;
@@ -300,15 +306,22 @@ public class Bob {
             );
         }
 
-        Task task = new Deadline(description, end);
-        tasks.add(task);
-        TaskStorage.save(tasks);
+        try {
+            LocalDate endDate = LocalDate.parse(end);
+            Task task = new Deadline(description, endDate);
+            tasks.add(task);
+            TaskStorage.save(tasks);
 
-        System.out.println("Got it. I've added this task:");
-        System.out.println("  " + task);
-        System.out.println(
-                "Now you have " + tasks.size() + " tasks in the list."
-        );
+            System.out.println("Got it. I've added this task:");
+            System.out.println("  " + task);
+            System.out.println(
+                    "Now you have " + tasks.size() + " tasks in the list."
+            );
+        } catch (DateTimeParseException e) {
+            throw new BobException(
+                    "Please enter the date as yyyy-MM-dd, "
+                            + "for example 2019-10-15.");
+        }
     }
 
     /**
@@ -360,15 +373,25 @@ public class Bob {
             );
         }
 
-        Task task = new Event(description, from, to);
-        tasks.add(task);
-        TaskStorage.save(tasks);
+        try {
+            LocalDate fromDate = LocalDate.parse(from);
+            LocalDate toDate = LocalDate.parse(to);
 
-        System.out.println("Got it. I've added this task:");
-        System.out.println("  " + task);
-        System.out.println(
-                "Now you have " + tasks.size() + " tasks in the list."
-        );
+            Task task = new Event((description), fromDate, toDate);
+            tasks.add(task);
+            TaskStorage.save(tasks);
+
+            System.out.println("Got it. I've added this task:");
+            System.out.println("  " + task);
+            System.out.println(
+                    "Now you have " + tasks.size() + " tasks in the list."
+            );
+        } catch (DateTimeParseException e) {
+            throw new BobException(
+                    "Please enter dates as yyyy-MM-dd, "
+                            + "for example 2019-10-15.");
+        }
+
     }
 
     /**
