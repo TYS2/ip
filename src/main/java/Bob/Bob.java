@@ -6,7 +6,11 @@ public class Bob {
     private Ui ui;
     private Parser parser;
 
-    /** Creates Bob using the supplied task data file. */
+    /**
+     * Creates Bob using the supplied task data file.
+     *
+     * @param filePath Path of the task data file.
+     */
     public Bob(String filePath) {
         ui = new Ui();
         storage = new Storage(filePath);
@@ -19,7 +23,9 @@ public class Bob {
         }
     }
 
-    /** Runs the interactive task manager. */
+    /**
+     * Runs the interactive task manager.
+     */
     public void run() {
         ui.showWelcome();
         while (true) {
@@ -40,7 +46,11 @@ public class Bob {
         ui.close();
     }
 
-    /** Starts Bob with the default task file. */
+    /**
+     * Starts Bob with the default task file.
+     *
+     * @param args Command-line arguments.
+     */
     public static void main(String[] args) {
         new Bob("data/duke.txt").run();
     }

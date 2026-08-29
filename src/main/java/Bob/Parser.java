@@ -15,8 +15,8 @@ public class Parser {
     /**
      * Determines which command the user entered from its first word.
      *
-     * @param command the complete command entered by the user
-     * @return the command type represented by the command keyword
+     * @param command Complete command entered by the user.
+     * @return Command type represented by the command keyword.
      */
     public CommandType parse(String command) {
         String keyword = command.split(" ", 2)[0];
@@ -46,9 +46,9 @@ public class Parser {
     /**
      * Parses a supported date-time value supplied as part of a command.
      *
-     * @param input date and time entered by the user
-     * @return parsed date and time
-     * @throws BobException if the input has an unsupported or invalid format
+     * @param input Date and time entered by the user.
+     * @return Parsed date and time.
+     * @throws BobException If the input has an unsupported or invalid format.
      */
     public static LocalDateTime parseDateTime(String input) throws BobException {
         for (DateTimeFormatter formatter : INPUT_FORMATS) {

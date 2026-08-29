@@ -12,7 +12,11 @@ import java.time.format.DateTimeParseException;
 public class Storage {
     private final Path file;
 
-    /** Creates storage backed by the supplied file path. */
+    /**
+     * Creates storage backed by the supplied file path.
+     *
+     * @param filePath Path of the task data file.
+     */
     public Storage(String filePath) {
         file = Path.of(filePath);
     }
