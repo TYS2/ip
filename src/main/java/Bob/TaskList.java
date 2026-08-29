@@ -3,6 +3,7 @@ package bob;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /** Owns the tasks currently managed by the application. */
 public class TaskList {
@@ -90,6 +91,18 @@ public class TaskList {
      */
     public ArrayList<Task> listTasks() {
         return asList();
+    }
+
+    /** Returns tasks whose descriptions contain the supplied keyword. */
+    public ArrayList<Task> findTasks(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        ArrayList<Task> matches = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getItem().toLowerCase(Locale.ROOT).contains(normalizedKeyword)) {
+                matches.add(task);
+            }
+        }
+        return matches;
     }
 
     /**
@@ -231,6 +244,17 @@ public class TaskList {
                     ui.show((i + 1) + "." + listed.get(i));
                 }
                 break;
+            case FIND:
+                String keyword = command.substring(4).trim();
+                if (keyword.isEmpty()) {
+                    throw new BobException("Please provide a keyword to find.");
+                }
+                ui.show("Here are the matching tasks in your list:");
+                ArrayList<Task> matches = findTasks(keyword);
+                for (int i = 0; i < matches.size(); i++) {
+                    ui.show((i + 1) + "." + matches.get(i));
+                }
+                break;
             case DELETE:
                 Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));
                 storage.save(asList());
@@ -259,7 +283,8 @@ public class TaskList {
             case EVENT:
                 showAdded(addEvent(command.substring(5).trim()), ui, storage);
                 break;
-            default: throw new BobException("I don't understand that command.");
+            default:
+                throw new BobException("I don't understand that command.");
         }
     }
 

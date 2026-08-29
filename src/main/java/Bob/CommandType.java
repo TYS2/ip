@@ -4,6 +4,7 @@ package bob;
 public enum CommandType {
     BYE,
     LIST,
+    FIND,
     DELETE,
     MARK,
     UNMARK,

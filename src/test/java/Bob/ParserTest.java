@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class ParserTest {
     @DisplayName("Test for parsing command")
     @Test
@@ -17,6 +19,12 @@ public class ParserTest {
     public void testCheckForListCommand() {
         Parser parser = new Parser();
         assertEquals(CommandType.LIST, parser.parse("list"));
+    }
+
+    @Test
+    public void testCheckForFindCommand() {
+        Parser parser = new Parser();
+        assertEquals(CommandType.FIND, parser.parse("find book"));
     }
 
     @DisplayName("Test for creating a deadline task")

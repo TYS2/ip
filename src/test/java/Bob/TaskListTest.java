@@ -1,5 +1,8 @@
 package bob;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -50,5 +53,18 @@ public class TaskListTest {
 
         assertThrows(BobException.class, () -> taskList.deleteTask(2));
         assertEquals(1, taskList.size());
+    }
+
+    @Test
+    @DisplayName("Finding tasks matches descriptions case-insensitively")
+    public void findTasks_matchingKeyword_returnsMatchingTasks() throws BobException {
+        TaskList taskList = new TaskList();
+        taskList.addTodo("Read a book");
+        taskList.addTodo("Return the BOOK");
+        taskList.addTodo("Buy groceries");
+
+        assertEquals(2, taskList.findTasks("book").size());
+        assertEquals("Read a book", taskList.findTasks("book").get(0).getItem());
+        assertEquals("Return the BOOK", taskList.findTasks("book").get(1).getItem());
     }
 }
