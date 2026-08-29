@@ -1,8 +1,8 @@
-package Bob;
+package bob;
 
-import java.util.ArrayList;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 
 /** Owns the tasks currently managed by the application. */
 public class TaskList {
@@ -88,7 +88,9 @@ public class TaskList {
      *
      * @return Tasks in their current order.
      */
-    public ArrayList<Task> listTasks() { return asList(); }
+    public ArrayList<Task> listTasks() {
+        return asList();
+    }
 
     /**
      * Removes a one-based task and returns it.
@@ -225,24 +227,38 @@ public class TaskList {
             case LIST:
                 ui.show("Here are the tasks in your list:");
                 ArrayList<Task> listed = listTasks();
-                for (int i = 0; i < listed.size(); i++) ui.show((i + 1) + "." + listed.get(i));
+                for (int i = 0; i < listed.size(); i++) {
+                    ui.show((i + 1) + "." + listed.get(i));
+                }
                 break;
             case DELETE:
                 Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));
-                storage.save(asList()); ui.show("Noted. I've removed this task:"); ui.show("  " + deleted);
-                ui.show("Now you have " + size() + " tasks in the list."); break;
+                storage.save(asList());
+                ui.show("Noted. I've removed this task:");
+                ui.show("  " + deleted);
+                ui.show("Now you have " + size() + " tasks in the list.");
+                break;
             case MARK:
                 Task marked = markTask(Integer.parseInt(command.substring(4).trim()));
-                storage.save(asList()); ui.show("Nice! I've marked this task as done:"); ui.show("  " + marked); break;
+                storage.save(asList());
+                ui.show("Nice! I've marked this task as done:");
+                ui.show("  " + marked);
+                break;
             case UNMARK:
                 Task unmarked = unmarkTask(Integer.parseInt(command.substring(6).trim()));
-                storage.save(asList()); ui.show("OK, I've marked this task as not done yet:"); ui.show("  " + unmarked); break;
+                storage.save(asList());
+                ui.show("OK, I've marked this task as not done yet:");
+                ui.show("  " + unmarked);
+                break;
             case TODO:
-                showAdded(addTodo(command.substring(4).trim()), ui, storage); break;
+                showAdded(addTodo(command.substring(4).trim()), ui, storage);
+                break;
             case DEADLINE:
-                showAdded(addDeadline(command.substring(8).trim()), ui, storage); break;
+                showAdded(addDeadline(command.substring(8).trim()), ui, storage);
+                break;
             case EVENT:
-                showAdded(addEvent(command.substring(5).trim()), ui, storage); break;
+                showAdded(addEvent(command.substring(5).trim()), ui, storage);
+                break;
             default: throw new BobException("I don't understand that command.");
         }
     }
@@ -256,7 +272,9 @@ public class TaskList {
      * @throws BobException If the task list cannot be saved.
      */
     private void showAdded(Task task, Ui ui, Storage storage) throws BobException {
-        storage.save(asList()); ui.show("Got it. I've added this task:"); ui.show("  " + task);
+        storage.save(asList());
+        ui.show("Got it. I've added this task:");
+        ui.show("  " + task);
         ui.show("Now you have " + size() + " tasks in the list.");
     }
 }
