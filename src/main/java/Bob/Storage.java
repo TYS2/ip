@@ -1,4 +1,4 @@
-package Bob;
+package bob;
 
 import java.io.IOException;
 import java.nio.file.Files;

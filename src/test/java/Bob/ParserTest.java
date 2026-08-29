@@ -1,4 +1,4 @@
-package Bob;
+package bob;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,12 @@ public class ParserTest {
     public void testCheckForListCommand() {
         Parser parser = new Parser();
         assertEquals(CommandType.LIST, parser.parse("list"));
+    }
+
+    @Test
+    public void testCheckForFindCommand() {
+        Parser parser = new Parser();
+        assertEquals(CommandType.FIND, parser.parse("find book"));
     }
 
     @DisplayName("Test for creating a deadline task")

@@ -1,4 +1,4 @@
-package Bob;
+package bob;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,8 +8,8 @@ import java.util.List;
 /** Converts the first word of a user command into a command type. */
 public class Parser {
     private static final List<DateTimeFormatter> INPUT_FORMATS = List.of(
-            DateTimeFormatter.ofPattern("uuuu-MM-dd"),
-            DateTimeFormatter.ofPattern("d/M/uuuu")
+            DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm"),
+            DateTimeFormatter.ofPattern("d/M/uuuu HHmm")
     );
 
     /**
@@ -26,6 +26,8 @@ public class Parser {
                 return CommandType.BYE;
             case "list":
                 return CommandType.LIST;
+            case "find":
+                return CommandType.FIND;
             case "delete":
                 return CommandType.DELETE;
             case "mark":

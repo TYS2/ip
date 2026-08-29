@@ -1,9 +1,10 @@
-package Bob;
+package bob;
 
 /** The command keywords understood by the task manager. */
 public enum CommandType {
     BYE,
     LIST,
+    FIND,
     DELETE,
     MARK,
     UNMARK,

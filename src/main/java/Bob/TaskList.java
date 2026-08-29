@@ -1,8 +1,9 @@
-package Bob;
+package bob;
 
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
 /** Owns the tasks currently managed by the application. */
 public class TaskList {
@@ -52,6 +53,18 @@ public class TaskList {
 
     /** Returns the tasks for display in their current order. */
     public ArrayList<Task> listTasks() { return asList(); }
+
+    /** Returns tasks whose descriptions contain the supplied keyword. */
+    public ArrayList<Task> findTasks(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        ArrayList<Task> matches = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getItem().toLowerCase(Locale.ROOT).contains(normalizedKeyword)) {
+                matches.add(task);
+            }
+        }
+        return matches;
+    }
 
     /** Removes a one-based task and returns it. */
     public Task deleteTask(int taskNumber) throws BobException {
@@ -145,6 +158,17 @@ public class TaskList {
                 ui.show("Here are the tasks in your list:");
                 ArrayList<Task> listed = listTasks();
                 for (int i = 0; i < listed.size(); i++) ui.show((i + 1) + "." + listed.get(i));
+                break;
+            case FIND:
+                String keyword = command.substring(4).trim();
+                if (keyword.isEmpty()) {
+                    throw new BobException("Please provide a keyword to find.");
+                }
+                ui.show("Here are the matching tasks in your list:");
+                ArrayList<Task> matches = findTasks(keyword);
+                for (int i = 0; i < matches.size(); i++) {
+                    ui.show((i + 1) + "." + matches.get(i));
+                }
                 break;
             case DELETE:
                 Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));

@@ -1,4 +1,4 @@
-package Bob;
+package bob;
 /** Coordinates the task manager components. */
 public class Bob {
     private Storage storage;
