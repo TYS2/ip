@@ -8,58 +8,107 @@ import java.time.format.DateTimeParseException;
 public class TaskList {
     private final ArrayList<Task> tasks;
 
-    /** Creates an empty task list. */
+    /**
+     * Creates an empty task list.
+     */
     public TaskList() {
         tasks = new ArrayList<>();
     }
 
-    /** Creates a task list containing the supplied tasks. */
+    /**
+     * Creates a task list containing the supplied tasks.
+     *
+     * @param tasks Tasks to copy.
+     */
     public TaskList(ArrayList<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
     }
 
-    /** Returns the task at a zero-based index. */
+    /**
+     * Returns the task at a zero-based index.
+     *
+     * @param index Zero-based task index.
+     * @return Task at the specified index.
+     */
     public Task get(int index) {
         return tasks.get(index);
     }
 
-    /** Adds a task to the end of the list. */
+    /**
+     * Adds a task to the end of the list.
+     *
+     * @param task Task to add.
+     */
     public void add(Task task) {
         tasks.add(task);
     }
 
-    /** Removes and returns the task at a zero-based index. */
+    /**
+     * Removes and returns the task at a zero-based index.
+     *
+     * @param index Zero-based task index.
+     * @return Removed task.
+     */
     public Task remove(int index) {
         return tasks.remove(index);
     }
 
-    /** Returns the number of tasks. */
+    /**
+     * Returns the number of tasks.
+     *
+     * @return Number of tasks.
+     */
     public int size() {
         return tasks.size();
     }
 
-    /** Validates a one-based task number. */
+    /**
+     * Validates a one-based task number.
+     *
+     * @param taskNumber One-based task number.
+     * @throws BobException If the task number is invalid.
+     */
     public void checkTaskNumber(int taskNumber) throws BobException {
         if (taskNumber < 1 || taskNumber > tasks.size()) {
             throw new BobException("That task number does not exist.");
         }
     }
 
-    /** Returns a copy suitable for persistence. */
+    /**
+     * Returns a copy suitable for persistence.
+     *
+     * @return Copy of the tasks.
+     */
     public ArrayList<Task> asList() {
         return new ArrayList<>(tasks);
     }
 
-    /** Returns the tasks for display in their current order. */
+    /**
+     * Returns the tasks for display in their current order.
+     *
+     * @return Tasks in their current order.
+     */
     public ArrayList<Task> listTasks() { return asList(); }
 
-    /** Removes a one-based task and returns it. */
+    /**
+     * Removes a one-based task and returns it.
+     *
+     * @param taskNumber One-based task number.
+     * @return Removed task.
+     * @throws BobException If the task number is invalid.
+     */
     public Task deleteTask(int taskNumber) throws BobException {
         checkTaskNumber(taskNumber);
         return remove(taskNumber - 1);
     }
 
-    /** Marks a one-based task as done and returns it. */
+    /**
+     * Marks a one-based task as done and returns it.
+     *
+     * @param taskNumber One-based task number.
+     * @return Marked task.
+     * @throws BobException If the task number is invalid.
+     */
     public Task markTask(int taskNumber) throws BobException {
         checkTaskNumber(taskNumber);
         Task task = get(taskNumber - 1);
@@ -67,7 +116,13 @@ public class TaskList {
         return task;
     }
 
-    /** Marks a one-based task as not done and returns it. */
+    /**
+     * Marks a one-based task as not done and returns it.
+     *
+     * @param taskNumber One-based task number.
+     * @return Unmarked task.
+     * @throws BobException If the task number is invalid.
+     */
     public Task unmarkTask(int taskNumber) throws BobException {
         checkTaskNumber(taskNumber);
         Task task = get(taskNumber - 1);
@@ -75,7 +130,13 @@ public class TaskList {
         return task;
     }
 
-    /** Creates and adds a todo task. */
+    /**
+     * Creates and adds a todo task.
+     *
+     * @param description Todo description.
+     * @return Created task.
+     * @throws BobException If the description is empty.
+     */
     public Task addTodo(String description) throws BobException {
         if (description.isEmpty()) {
             throw new BobException("The description of a todo cannot be empty.");
@@ -85,7 +146,13 @@ public class TaskList {
         return task;
     }
 
-    /** Creates and adds a deadline from its description and date input. */
+    /**
+     * Creates and adds a deadline from its description and date input.
+     *
+     * @param input Deadline description and date.
+     * @return Created task.
+     * @throws BobException If the input is invalid.
+     */
     public Task addDeadline(String input) throws BobException {
         String[] parts = input.split(" /by ", 2);
         if (parts.length < 2) {
@@ -109,7 +176,13 @@ public class TaskList {
         }
     }
 
-    /** Creates and adds an event from its description and date inputs. */
+    /**
+     * Creates and adds an event from its description and date inputs.
+     *
+     * @param input Event description and dates.
+     * @return Created task.
+     * @throws BobException If the input is invalid.
+     */
     public Task addEvent(String input) throws BobException {
         String[] parts = input.split(" /from | /to ", 3);
         if (parts.length < 3) {
@@ -137,7 +210,15 @@ public class TaskList {
         }
     }
 
-    /** Executes a non-exit command against this task list. */
+    /**
+     * Executes a non-exit command against this task list.
+     *
+     * @param command Complete command entered by the user.
+     * @param type Parsed command type.
+     * @param ui User interface used for output.
+     * @param storage Storage used to persist changes.
+     * @throws BobException If the command or task number is invalid.
+     */
     public void execute(String command, CommandType type, Ui ui, Storage storage)
             throws BobException {
         switch (type) {
@@ -166,6 +247,14 @@ public class TaskList {
         }
     }
 
+    /**
+     * Displays a newly added task and persists the task list.
+     *
+     * @param task Newly added task.
+     * @param ui User interface used for output.
+     * @param storage Storage used to persist changes.
+     * @throws BobException If the task list cannot be saved.
+     */
     private void showAdded(Task task, Ui ui, Storage storage) throws BobException {
         storage.save(asList()); ui.show("Got it. I've added this task:"); ui.show("  " + task);
         ui.show("Now you have " + size() + " tasks in the list.");

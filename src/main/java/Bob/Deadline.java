@@ -10,11 +10,22 @@ public class Deadline extends Task {
 
     private final LocalDate end;
 
+    /**
+     * Creates a deadline with a description and due date.
+     *
+     * @param item Deadline description.
+     * @param end Deadline due date.
+     */
     public Deadline(String item, LocalDate end) {
         super(item);
         this.end = end;
     }
 
+    /**
+     * Returns the storage representation of this deadline.
+     *
+     * @return Storage line.
+     */
     @Override
     public String toStorageString() {
         // LocalDateTime.toString() uses a stable ISO representation.
@@ -22,6 +33,11 @@ public class Deadline extends Task {
                 + getItem() + " | " + end;
     }
 
+    /**
+     * Returns the display representation of this deadline.
+     *
+     * @return Display form of this deadline.
+     */
     @Override
     public String toString() {
         return "[D][" + (getDone() ? "X" : " ") + "] "
