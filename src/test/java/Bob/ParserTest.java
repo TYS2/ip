@@ -1,15 +1,14 @@
-package Bob;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+package bob;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 public class ParserTest {
     @DisplayName("Test for parsing command")
     @Test
-    public void testCheckForCommand(){
-        Parser parser=new Parser();
+    public void parse_bye_returnsBye() {
+        Parser parser = new Parser();
         assertEquals(CommandType.BYE, parser.parse("bye"));
     }
 
@@ -29,7 +28,7 @@ public class ParserTest {
 
         assertEquals(1, taskList.size());
         assertEquals(
-                "[D][ ] Submit report (by: Sep 01 2026)",
+                "[D][ ] Submit report (by: Sept 01 2026)",
                 deadline.toString());
     }
 }

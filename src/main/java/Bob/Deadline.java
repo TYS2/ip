@@ -1,4 +1,4 @@
-package Bob;
+package bob;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -10,6 +10,7 @@ public class Deadline extends Task {
 
     private final LocalDate end;
 
+    /** Creates a deadline task with the supplied description and date. */
     public Deadline(String item, LocalDate end) {
         super(item);
         this.end = end;

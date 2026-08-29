@@ -1,4 +1,4 @@
-package Bob;
+package bob;
 /** Coordinates the task manager components. */
 public class Bob {
     private Storage storage;
@@ -9,7 +9,7 @@ public class Bob {
     /** Creates Bob using the supplied task data file. */
     public Bob(String filePath) {
         ui = new Ui();
-        storage = new Storage(filePath);
+        storage = new bob.Storage(filePath);
         parser = new Parser();
         try {
             tasks = new TaskList(storage.load());

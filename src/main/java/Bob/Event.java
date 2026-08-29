@@ -1,4 +1,4 @@
-package Bob;
+package bob;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -11,6 +11,7 @@ public class Event extends Task {
     private final LocalDate from;
     private final LocalDate to;
 
+    /** Creates an event task with the supplied description and dates. */
     public Event(String item, LocalDate from, LocalDate to) {
         super(item);
         this.from = from;

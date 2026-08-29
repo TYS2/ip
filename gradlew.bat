@@ -35,10 +35,17 @@ set APP_HOME=%DIRNAME%
 @rem Resolve any "." and ".." in APP_HOME to make it shorter.
 for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 
+@rem Keep the wrapper cache inside the project for reproducible local builds.
+set GRADLE_USER_HOME=%APP_HOME%\.gradle-user-home
+
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
 @rem Find java.exe
+if defined JAVA_HOME goto findJavaFromJavaHome
+
+@rem Use the standard local JDK installation when Java is not on PATH.
+if exist "C:\Program Files\Java\jdk-26.0.2.1\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk-26.0.2.1
 if defined JAVA_HOME goto findJavaFromJavaHome
 
 set JAVA_EXE=java.exe
