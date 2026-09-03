@@ -230,18 +230,18 @@ public class TaskList {
      *
      * @param command Complete command entered by the user.
      * @param type Parsed command type.
-     * @param ui User interface used for output.
      * @param storage Storage used to persist changes.
      * @throws BobException If the command or task number is invalid.
      */
-    public void execute(String command, CommandType type, Ui ui, Storage storage)
+    public String execute(String command, CommandType type, Storage storage)
             throws BobException {
+        StringBuilder response = new StringBuilder();
         switch (type) {
             case LIST:
-                ui.show("Here are the tasks in your list:");
+                response.append("Here are the tasks in your list:");
                 ArrayList<Task> listed = listTasks();
                 for (int i = 0; i < listed.size(); i++) {
-                    ui.show((i + 1) + "." + listed.get(i));
+                    response.append(System.lineSeparator()).append((i + 1)).append(".").append(listed.get(i));
                 }
                 break;
             case FIND:
@@ -249,57 +249,57 @@ public class TaskList {
                 if (keyword.isEmpty()) {
                     throw new BobException("Please provide a keyword to find.");
                 }
-                ui.show("Here are the matching tasks in your list:");
+                response.append("Here are the matching tasks in your list:");
                 ArrayList<Task> matches = findTasks(keyword);
                 for (int i = 0; i < matches.size(); i++) {
-                    ui.show((i + 1) + "." + matches.get(i));
+                    response.append(System.lineSeparator()).append((i + 1)).append(".").append(matches.get(i));
                 }
                 break;
             case DELETE:
                 Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));
                 storage.save(asList());
-                ui.show("Noted. I've removed this task:");
-                ui.show("  " + deleted);
-                ui.show("Now you have " + size() + " tasks in the list.");
+                response.append("Noted. I've removed this task:").append(System.lineSeparator())
+                        .append("  ").append(deleted).append(System.lineSeparator())
+                        .append("Now you have ").append(size()).append(" tasks in the list.");
                 break;
             case MARK:
                 Task marked = markTask(Integer.parseInt(command.substring(4).trim()));
                 storage.save(asList());
-                ui.show("Nice! I've marked this task as done:");
-                ui.show("  " + marked);
+                response.append("Nice! I've marked this task as done:").append(System.lineSeparator())
+                        .append("  ").append(marked);
                 break;
             case UNMARK:
                 Task unmarked = unmarkTask(Integer.parseInt(command.substring(6).trim()));
                 storage.save(asList());
-                ui.show("OK, I've marked this task as not done yet:");
-                ui.show("  " + unmarked);
+                response.append("OK, I've marked this task as not done yet:").append(System.lineSeparator())
+                        .append("  ").append(unmarked);
                 break;
             case TODO:
-                showAdded(addTodo(command.substring(4).trim()), ui, storage);
+                response.append(showAdded(addTodo(command.substring(4).trim()), storage));
                 break;
             case DEADLINE:
-                showAdded(addDeadline(command.substring(8).trim()), ui, storage);
+                response.append(showAdded(addDeadline(command.substring(8).trim()), storage));
                 break;
             case EVENT:
-                showAdded(addEvent(command.substring(5).trim()), ui, storage);
+                response.append(showAdded(addEvent(command.substring(5).trim()), storage));
                 break;
             default:
                 throw new BobException("I don't understand that command.");
         }
+        return response.toString();
     }
 
     /**
-     * Displays a newly added task and persists the task list.
+     * Formats a newly added task and persists the task list.
      *
      * @param task Newly added task.
-     * @param ui User interface used for output.
      * @param storage Storage used to persist changes.
      * @throws BobException If the task list cannot be saved.
      */
-    private void showAdded(Task task, Ui ui, Storage storage) throws BobException {
+    private String showAdded(Task task, Storage storage) throws BobException {
         storage.save(asList());
-        ui.show("Got it. I've added this task:");
-        ui.show("  " + task);
-        ui.show("Now you have " + size() + " tasks in the list.");
+        return "Got it. I've added this task:" + System.lineSeparator()
+                + "  " + task + System.lineSeparator()
+                + "Now you have " + size() + " tasks in the list.";
     }
 }
