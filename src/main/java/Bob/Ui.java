@@ -5,6 +5,7 @@ import java.util.Scanner;
 /** Handles input from and output to the user. */
 public class Ui {
     private final Scanner scanner;
+    private StringBuilder capturedOutput;
 
     /**
      * Creates a UI backed by standard input and output.
@@ -36,7 +37,11 @@ public class Ui {
      * @param message Message to display.
      */
     public void show(String message) {
-        System.out.println(message);
+        if (capturedOutput != null) {
+            capturedOutput.append(message).append(System.lineSeparator());
+        } else {
+            System.out.println(message);
+        }
     }
 
     /**
@@ -54,4 +59,17 @@ public class Ui {
     public void close() {
         scanner.close();
     }
+
+    /** Starts capturing output for a non-CLI caller. */
+    public void startCapture() {
+        capturedOutput = new StringBuilder();
+    }
+
+    /** Returns and stops capturing output. */
+    public String stopCapture() {
+        String output = capturedOutput.toString().trim();
+        capturedOutput = null;
+        return output;
+    }
+
 }
