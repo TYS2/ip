@@ -235,58 +235,64 @@ public class TaskList {
      */
     public String execute(String command, CommandType type, Storage storage)
             throws BobException {
-        StringBuilder response = new StringBuilder();
         switch (type) {
             case LIST:
-                response.append("Here are the tasks in your list:");
-                ArrayList<Task> listed = listTasks();
-                for (int i = 0; i < listed.size(); i++) {
-                    response.append(System.lineSeparator()).append((i + 1)).append(".").append(listed.get(i));
-                }
-                break;
+                return formatTasks("Here are the tasks in your list:", listTasks());
             case FIND:
-                String keyword = command.substring(4).trim();
-                if (keyword.isEmpty()) {
-                    throw new BobException("Please provide a keyword to find.");
-                }
-                response.append("Here are the matching tasks in your list:");
-                ArrayList<Task> matches = findTasks(keyword);
-                for (int i = 0; i < matches.size(); i++) {
-                    response.append(System.lineSeparator()).append((i + 1)).append(".").append(matches.get(i));
-                }
-                break;
+                return findAndFormatTasks(command);
             case DELETE:
-                Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));
-                storage.save(asList());
-                response.append("Noted. I've removed this task:").append(System.lineSeparator())
-                        .append("  ").append(deleted).append(System.lineSeparator())
-                        .append("Now you have ").append(size()).append(" tasks in the list.");
-                break;
+                return deleteAndFormatTask(command, storage);
             case MARK:
-                Task marked = markTask(Integer.parseInt(command.substring(4).trim()));
-                storage.save(asList());
-                response.append("Nice! I've marked this task as done:").append(System.lineSeparator())
-                        .append("  ").append(marked);
-                break;
+                return markAndFormatTask(command, storage);
             case UNMARK:
-                Task unmarked = unmarkTask(Integer.parseInt(command.substring(6).trim()));
-                storage.save(asList());
-                response.append("OK, I've marked this task as not done yet:").append(System.lineSeparator())
-                        .append("  ").append(unmarked);
-                break;
+                return unmarkAndFormatTask(command, storage);
             case TODO:
-                response.append(showAdded(addTodo(command.substring(4).trim()), storage));
-                break;
+                return showAdded(addTodo(command.substring(4).trim()), storage);
             case DEADLINE:
-                response.append(showAdded(addDeadline(command.substring(8).trim()), storage));
-                break;
+                return showAdded(addDeadline(command.substring(8).trim()), storage);
             case EVENT:
-                response.append(showAdded(addEvent(command.substring(5).trim()), storage));
-                break;
+                return showAdded(addEvent(command.substring(5).trim()), storage);
             default:
                 throw new BobException("I don't understand that command.");
         }
+    }
+
+    private String findAndFormatTasks(String command) throws BobException {
+        String keyword = command.substring(4).trim();
+        if (keyword.isEmpty()) {
+            throw new BobException("Please provide a keyword to find.");
+        }
+        return formatTasks("Here are the matching tasks in your list:", findTasks(keyword));
+    }
+
+    private String formatTasks(String heading, ArrayList<Task> tasksToFormat) {
+        StringBuilder response = new StringBuilder(heading);
+        for (int i = 0; i < tasksToFormat.size(); i++) {
+            response.append(System.lineSeparator()).append(i + 1).append(".").append(tasksToFormat.get(i));
+        }
         return response.toString();
+    }
+
+    private String deleteAndFormatTask(String command, Storage storage) throws BobException {
+        Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));
+        storage.save(asList());
+        return "Noted. I've removed this task:" + System.lineSeparator()
+                + "  " + deleted + System.lineSeparator()
+                + "Now you have " + size() + " tasks in the list.";
+    }
+
+    private String markAndFormatTask(String command, Storage storage) throws BobException {
+        Task marked = markTask(Integer.parseInt(command.substring(4).trim()));
+        storage.save(asList());
+        return "Nice! I've marked this task as done:" + System.lineSeparator()
+                + "  " + marked;
+    }
+
+    private String unmarkAndFormatTask(String command, Storage storage) throws BobException {
+        Task unmarked = unmarkTask(Integer.parseInt(command.substring(6).trim()));
+        storage.save(asList());
+        return "OK, I've marked this task as not done yet:" + System.lineSeparator()
+                + "  " + unmarked;
     }
 
     /**
