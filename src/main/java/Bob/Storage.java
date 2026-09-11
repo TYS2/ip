@@ -59,6 +59,7 @@ public class Storage {
      * @return the parsed task, or null when the line is malformed.
      */
     private static Task parseTask(String line) {
+        assert line != null : "The storage parser expects a file line";
         String[] parts = line.split("\\s*\\|\\s*", 5);
         if (parts.length < 3
                 || (!parts[1].equals("0") && !parts[1].equals("1"))) {
@@ -122,8 +123,10 @@ public class Storage {
      * @throws BobException if the directory or file cannot be written.
      */
     public void save(ArrayList<Task> tasks) throws BobException {
+        assert tasks != null : "Storage requires a task collection to save";
         ArrayList<String> lines = new ArrayList<>();
         for (Task task : tasks) {
+            assert task != null : "The task collection must not contain null tasks";
             lines.add(task.toStorageString());
         }
 
