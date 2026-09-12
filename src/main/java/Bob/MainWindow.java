@@ -31,7 +31,11 @@ public class MainWindow extends AnchorPane {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
-    /** Injects the Bob instance */
+    /**
+     * Injects the Bob instance used to process user commands.
+     *
+     * @param b Bob instance to use for command processing.
+     */
     public void setBob(Bob b) {
         bob = b;
     }
