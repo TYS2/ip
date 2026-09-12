@@ -4,10 +4,19 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.List;
 
 /** Owns the tasks currently managed by the application. */
 public class TaskList {
-    private final ArrayList<Task> tasks;
+    private static final int TODO_PREFIX_LENGTH = 4;
+    private static final int FIND_PREFIX_LENGTH = 4;
+    private static final int DELETE_PREFIX_LENGTH = 6;
+    private static final int MARK_PREFIX_LENGTH = 4;
+    private static final int UNMARK_PREFIX_LENGTH = 6;
+    private static final int DEADLINE_PREFIX_LENGTH = 8;
+    private static final int EVENT_PREFIX_LENGTH = 5;
+
+    private final List<Task> tasks;
 
     /**
      * Creates an empty task list.
@@ -21,7 +30,7 @@ public class TaskList {
      *
      * @param tasks Tasks to copy.
      */
-    public TaskList(ArrayList<Task> tasks) {
+    public TaskList(List<Task> tasks) {
         assert tasks != null : "The initial task collection must exist";
         this.tasks = new ArrayList<>(tasks);
     }
@@ -84,7 +93,7 @@ public class TaskList {
      *
      * @return Copy of the tasks.
      */
-    public ArrayList<Task> asList() {
+    public List<Task> asList() {
         return new ArrayList<>(tasks);
     }
 
@@ -93,12 +102,12 @@ public class TaskList {
      *
      * @return Tasks in their current order.
      */
-    public ArrayList<Task> listTasks() {
+    public List<Task> listTasks() {
         return asList();
     }
 
     /** Returns tasks whose descriptions contain the supplied keyword. */
-    public ArrayList<Task> findTasks(String keyword) {
+    public List<Task> findTasks(String keyword) {
         String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
         ArrayList<Task> matches = new ArrayList<>();
         for (Task task : tasks) {
@@ -173,18 +182,9 @@ public class TaskList {
      * @throws BobException If the input is invalid.
      */
     public Task addDeadline(String input) throws BobException {
-        String[] parts = input.split(" /by ", 2);
-        if (parts.length < 2) {
-            throw new BobException("A deadline needs a description and a /by date.");
-        }
-        String description = parts[0].trim();
-        String end = parts[1].trim();
-        if (description.isEmpty()) {
-            throw new BobException("The deadline description cannot be empty.");
-        }
-        if (end.isEmpty()) {
-            throw new BobException("The deadline date cannot be empty.");
-        }
+        String[] parts = validateDeadlineInput(input);
+        String description = parts[0];
+        String end = parts[1];
         try {
             Task task = new Deadline(description, LocalDate.parse(end));
             add(task);
@@ -203,22 +203,10 @@ public class TaskList {
      * @throws BobException If the input is invalid.
      */
     public Task addEvent(String input) throws BobException {
-        String[] parts = input.split(" /from | /to ", 3);
-        if (parts.length < 3) {
-            throw new BobException("An event needs a description, /from, and /to.");
-        }
-        String description = parts[0].trim();
-        String from = parts[1].trim();
-        String to = parts[2].trim();
-        if (description.isEmpty()) {
-            throw new BobException("The event description cannot be empty.");
-        }
-        if (from.isEmpty()) {
-            throw new BobException("The event start time cannot be empty.");
-        }
-        if (to.isEmpty()) {
-            throw new BobException("The event end time cannot be empty.");
-        }
+        String[] parts = validateEventInput(input);
+        String description = parts[0];
+        String from = parts[1];
+        String to = parts[2];
         try {
             Task task = new Event(description, LocalDate.parse(from), LocalDate.parse(to));
             add(task);
@@ -245,55 +233,98 @@ public class TaskList {
         StringBuilder response = new StringBuilder();
         switch (type) {
             case LIST:
-                response.append("Here are the tasks in your list:");
-                ArrayList<Task> listed = listTasks();
-                for (int i = 0; i < listed.size(); i++) {
-                    response.append(System.lineSeparator()).append((i + 1)).append(".").append(listed.get(i));
-                }
-                break;
+                return formatTasks("Here are the tasks in your list:", listTasks());
             case FIND:
-                String keyword = command.substring(4).trim();
-                if (keyword.isEmpty()) {
-                    throw new BobException("Please provide a keyword to find.");
-                }
-                response.append("Here are the matching tasks in your list:");
-                ArrayList<Task> matches = findTasks(keyword);
-                for (int i = 0; i < matches.size(); i++) {
-                    response.append(System.lineSeparator()).append((i + 1)).append(".").append(matches.get(i));
-                }
-                break;
+                return findAndFormatTasks(command);
             case DELETE:
-                Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));
-                storage.save(asList());
-                response.append("Noted. I've removed this task:").append(System.lineSeparator())
-                        .append("  ").append(deleted).append(System.lineSeparator())
-                        .append("Now you have ").append(size()).append(" tasks in the list.");
-                break;
+                return deleteAndFormatTask(command, storage);
             case MARK:
-                Task marked = markTask(Integer.parseInt(command.substring(4).trim()));
-                storage.save(asList());
-                response.append("Nice! I've marked this task as done:").append(System.lineSeparator())
-                        .append("  ").append(marked);
-                break;
+                return markAndFormatTask(command, storage);
             case UNMARK:
-                Task unmarked = unmarkTask(Integer.parseInt(command.substring(6).trim()));
-                storage.save(asList());
-                response.append("OK, I've marked this task as not done yet:").append(System.lineSeparator())
-                        .append("  ").append(unmarked);
-                break;
+                return unmarkAndFormatTask(command, storage);
             case TODO:
-                response.append(showAdded(addTodo(command.substring(4).trim()), storage));
-                break;
+                return showAdded(addTodo(command.substring(TODO_PREFIX_LENGTH).trim()), storage);
             case DEADLINE:
-                response.append(showAdded(addDeadline(command.substring(8).trim()), storage));
-                break;
+                return showAdded(addDeadline(command.substring(DEADLINE_PREFIX_LENGTH).trim()), storage);
             case EVENT:
-                response.append(showAdded(addEvent(command.substring(5).trim()), storage));
-                break;
+                return showAdded(addEvent(command.substring(EVENT_PREFIX_LENGTH).trim()), storage);
             default:
                 throw new BobException("I don't understand that command.");
         }
+    }
+
+    private String[] validateEventInput(String input) throws BobException {
+        String[] parts = input.split(" /from | /to ", 3);
+        if (parts.length < 3) {
+            throw new BobException("An event needs a description, /from, and /to.");
+        }
+        String description = parts[0].trim();
+        String from = parts[1].trim();
+        String to = parts[2].trim();
+        if (description.isEmpty()) {
+            throw new BobException("The event description cannot be empty.");
+        }
+        if (from.isEmpty()) {
+            throw new BobException("The event start time cannot be empty.");
+        }
+        if (to.isEmpty()) {
+            throw new BobException("The event end time cannot be empty.");
+        }
+        return new String[] {description, from, to};
+    }
+
+    private String[] validateDeadlineInput(String input) throws BobException {
+        String[] parts = input.split(" /by ", 2);
+        if (parts.length < 2) {
+            throw new BobException("A deadline needs a description and a /by date.");
+        }
+        String description = parts[0].trim();
+        String end = parts[1].trim();
+        if (description.isEmpty()) {
+            throw new BobException("The deadline description cannot be empty.");
+        }
+        if (end.isEmpty()) {
+            throw new BobException("The deadline date cannot be empty.");
+        }
+        return new String[] {description, end};
+    }
+
+    private String findAndFormatTasks(String command) throws BobException {
+        String keyword = command.substring(FIND_PREFIX_LENGTH).trim();
+        if (keyword.isEmpty()) {
+            throw new BobException("Please provide a keyword to find.");
+        }
+        return formatTasks("Here are the matching tasks in your list:", findTasks(keyword));
+    }
+
+    private String formatTasks(String heading, List<Task> tasksToFormat) {
+        StringBuilder response = new StringBuilder(heading);
+        for (int i = 0; i < tasksToFormat.size(); i++) {
+            response.append(System.lineSeparator()).append(i + 1).append(".").append(tasksToFormat.get(i));
+        }
         return response.toString();
+    }
+
+    private String deleteAndFormatTask(String command, Storage storage) throws BobException {
+        Task deleted = deleteTask(Integer.parseInt(command.substring(DELETE_PREFIX_LENGTH).trim()));
+        storage.save(asList());
+        return "Noted. I've removed this task:" + System.lineSeparator()
+                + "  " + deleted + System.lineSeparator()
+                + "Now you have " + size() + " tasks in the list.";
+    }
+
+    private String markAndFormatTask(String command, Storage storage) throws BobException {
+        Task marked = markTask(Integer.parseInt(command.substring(MARK_PREFIX_LENGTH).trim()));
+        storage.save(asList());
+        return "Nice! I've marked this task as done:" + System.lineSeparator()
+                + "  " + marked;
+    }
+
+    private String unmarkAndFormatTask(String command, Storage storage) throws BobException {
+        Task unmarked = unmarkTask(Integer.parseInt(command.substring(UNMARK_PREFIX_LENGTH).trim()));
+        storage.save(asList());
+        return "OK, I've marked this task as not done yet:" + System.lineSeparator()
+                + "  " + unmarked;
     }
 
     /**

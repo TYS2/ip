@@ -1,3 +1,5 @@
+package bob;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -46,10 +48,24 @@ public class DialogBox extends HBox {
         setAlignment(Pos.TOP_LEFT);
     }
 
+    /**
+     * Creates a dialog box displaying the user's input on the right.
+     *
+     * @param text User input to display.
+     * @param img Image representing the user.
+     * @return Dialog box containing the user's input.
+     */
     public static DialogBox getUserDialog(String text, Image img) {
         return new DialogBox(text, img);
     }
 
+    /**
+     * Creates a dialog box displaying Bob's response on the left.
+     *
+     * @param text Response text to display.
+     * @param img Image representing Bob.
+     * @return Dialog box containing Bob's response.
+     */
     public static DialogBox getBobDialog(String text, Image img) {
         var db = new DialogBox(text, img);
         db.flip();

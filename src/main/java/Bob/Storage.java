@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 /** Loads and saves tasks from the application's data file. */
 public class Storage {
@@ -28,7 +29,7 @@ public class Storage {
      *         not exist.
      * @throws BobException if the file cannot be read.
      */
-    public ArrayList<Task> load() throws BobException {
+    public List<Task> load() throws BobException {
         ArrayList<Task> tasks = new ArrayList<>();
 
         if (!Files.exists(file)) {
@@ -72,45 +73,45 @@ public class Storage {
             return null;
         }
 
-        Task task;
-        switch (type) {
-            case "T":
-                task = new Task(description);
-                break;
-            case "D":
-                if (parts.length < 4 || parts[3].trim().isEmpty()) {
-                    return null;
-                }
+        Task task = switch (type) {
+            case Task.TODO_TYPE -> new Task(description);
+            case Task.DEADLINE_TYPE -> parseDeadline(parts, description);
+            case Task.EVENT_TYPE -> parseEvent(parts, description);
+            default -> null;
+        };
+        return restoreCompletionState(task, parts[1]);
+    }
 
-                try {
-                    task = new Deadline(
-                            description,
-                            LocalDate.parse(parts[3].trim()));
-                } catch (DateTimeParseException e) {
-                    return null;
-                }
-                break;
-
-            case "E":
-                if (parts.length < 5 || parts[3].trim().isEmpty()
-                        || parts[4].trim().isEmpty()) {
-                    return null;
-                }
-
-                try {
-                    task = new Event(
-                            description,
-                            LocalDate.parse(parts[3].trim()),
-                            LocalDate.parse(parts[4].trim()));
-                } catch (DateTimeParseException e) {
-                    return null;
-                }
-                break;
-            default:
-                return null;
+    private static Task parseDeadline(String[] parts, String description) {
+        if (parts.length < 4 || parts[3].trim().isEmpty()) {
+            return null;
         }
 
-        if (parts[1].equals("1")) {
+        try {
+            return new Deadline(description, LocalDate.parse(parts[3].trim()));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static Task parseEvent(String[] parts, String description) {
+        if (parts.length < 5 || parts[3].trim().isEmpty()
+                || parts[4].trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return new Event(
+                    description,
+                    LocalDate.parse(parts[3].trim()),
+                    LocalDate.parse(parts[4].trim()));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static Task restoreCompletionState(Task task, String completionFlag) {
+        if (task != null && completionFlag.equals(Task.COMPLETE_FLAG)) {
             task.markDone();
         }
         return task;
@@ -122,7 +123,7 @@ public class Storage {
      * @param tasks tasks to save.
      * @throws BobException if the directory or file cannot be written.
      */
-    public void save(ArrayList<Task> tasks) throws BobException {
+    public void save(List<Task> tasks) throws BobException {
         assert tasks != null : "Storage requires a task collection to save";
         ArrayList<String> lines = new ArrayList<>();
         for (Task task : tasks) {

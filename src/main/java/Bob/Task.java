@@ -3,6 +3,11 @@ package bob;
 /** Represents a basic todo task with a description and completion state. */
 
 public class Task {
+    static final String TODO_TYPE = "T";
+    static final String DEADLINE_TYPE = "D";
+    static final String EVENT_TYPE = "E";
+    static final String COMPLETE_FLAG = "1";
+
     /** The task description shown to the user. */
     private final String item;
     /** Whether the task has been marked as completed. */
@@ -57,7 +62,7 @@ public class Task {
      * @return Storage line.
      */
     public String toStorageString() {
-        return "T | " + (done ? "1" : "0") + " | " + item;
+        return TODO_TYPE + " | " + (done ? COMPLETE_FLAG : "0") + " | " + item;
     }
 
     /**

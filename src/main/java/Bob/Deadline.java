@@ -30,7 +30,7 @@ public class Deadline extends Task {
     @Override
     public String toStorageString() {
         // LocalDateTime.toString() uses a stable ISO representation.
-        return "D | " + (getDone() ? "1" : "0") + " | "
+        return DEADLINE_TYPE + " | " + (getDone() ? COMPLETE_FLAG : "0") + " | "
                 + getItem() + " | " + end;
     }
 
