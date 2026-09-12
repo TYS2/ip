@@ -7,6 +7,14 @@ import java.util.Locale;
 
 /** Owns the tasks currently managed by the application. */
 public class TaskList {
+    private static final int TODO_PREFIX_LENGTH = 4;
+    private static final int FIND_PREFIX_LENGTH = 4;
+    private static final int DELETE_PREFIX_LENGTH = 6;
+    private static final int MARK_PREFIX_LENGTH = 4;
+    private static final int UNMARK_PREFIX_LENGTH = 6;
+    private static final int DEADLINE_PREFIX_LENGTH = 8;
+    private static final int EVENT_PREFIX_LENGTH = 5;
+
     private final ArrayList<Task> tasks;
 
     /**
@@ -247,18 +255,18 @@ public class TaskList {
             case UNMARK:
                 return unmarkAndFormatTask(command, storage);
             case TODO:
-                return showAdded(addTodo(command.substring(4).trim()), storage);
+                return showAdded(addTodo(command.substring(TODO_PREFIX_LENGTH).trim()), storage);
             case DEADLINE:
-                return showAdded(addDeadline(command.substring(8).trim()), storage);
+                return showAdded(addDeadline(command.substring(DEADLINE_PREFIX_LENGTH).trim()), storage);
             case EVENT:
-                return showAdded(addEvent(command.substring(5).trim()), storage);
+                return showAdded(addEvent(command.substring(EVENT_PREFIX_LENGTH).trim()), storage);
             default:
                 throw new BobException("I don't understand that command.");
         }
     }
 
     private String findAndFormatTasks(String command) throws BobException {
-        String keyword = command.substring(4).trim();
+        String keyword = command.substring(FIND_PREFIX_LENGTH).trim();
         if (keyword.isEmpty()) {
             throw new BobException("Please provide a keyword to find.");
         }
@@ -274,7 +282,7 @@ public class TaskList {
     }
 
     private String deleteAndFormatTask(String command, Storage storage) throws BobException {
-        Task deleted = deleteTask(Integer.parseInt(command.substring(6).trim()));
+        Task deleted = deleteTask(Integer.parseInt(command.substring(DELETE_PREFIX_LENGTH).trim()));
         storage.save(asList());
         return "Noted. I've removed this task:" + System.lineSeparator()
                 + "  " + deleted + System.lineSeparator()
@@ -282,14 +290,14 @@ public class TaskList {
     }
 
     private String markAndFormatTask(String command, Storage storage) throws BobException {
-        Task marked = markTask(Integer.parseInt(command.substring(4).trim()));
+        Task marked = markTask(Integer.parseInt(command.substring(MARK_PREFIX_LENGTH).trim()));
         storage.save(asList());
         return "Nice! I've marked this task as done:" + System.lineSeparator()
                 + "  " + marked;
     }
 
     private String unmarkAndFormatTask(String command, Storage storage) throws BobException {
-        Task unmarked = unmarkTask(Integer.parseInt(command.substring(6).trim()));
+        Task unmarked = unmarkTask(Integer.parseInt(command.substring(UNMARK_PREFIX_LENGTH).trim()));
         storage.save(asList());
         return "OK, I've marked this task as not done yet:" + System.lineSeparator()
                 + "  " + unmarked;
