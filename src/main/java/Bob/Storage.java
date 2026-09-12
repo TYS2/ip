@@ -73,9 +73,9 @@ public class Storage {
         }
 
         Task task = switch (type) {
-            case "T" -> new Task(description);
-            case "D" -> parseDeadline(parts, description);
-            case "E" -> parseEvent(parts, description);
+            case Task.TODO_TYPE -> new Task(description);
+            case Task.DEADLINE_TYPE -> parseDeadline(parts, description);
+            case Task.EVENT_TYPE -> parseEvent(parts, description);
             default -> null;
         };
         return restoreCompletionState(task, parts[1]);
@@ -110,7 +110,7 @@ public class Storage {
     }
 
     private static Task restoreCompletionState(Task task, String completionFlag) {
-        if (task != null && completionFlag.equals("1")) {
+        if (task != null && completionFlag.equals(Task.COMPLETE_FLAG)) {
             task.markDone();
         }
         return task;
