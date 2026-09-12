@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.List;
 
 /** Owns the tasks currently managed by the application. */
 public class TaskList {
@@ -15,7 +16,7 @@ public class TaskList {
     private static final int DEADLINE_PREFIX_LENGTH = 8;
     private static final int EVENT_PREFIX_LENGTH = 5;
 
-    private final ArrayList<Task> tasks;
+    private final List<Task> tasks;
 
     /**
      * Creates an empty task list.
@@ -29,7 +30,7 @@ public class TaskList {
      *
      * @param tasks Tasks to copy.
      */
-    public TaskList(ArrayList<Task> tasks) {
+    public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
     }
 
@@ -88,7 +89,7 @@ public class TaskList {
      *
      * @return Copy of the tasks.
      */
-    public ArrayList<Task> asList() {
+    public List<Task> asList() {
         return new ArrayList<>(tasks);
     }
 
@@ -97,12 +98,12 @@ public class TaskList {
      *
      * @return Tasks in their current order.
      */
-    public ArrayList<Task> listTasks() {
+    public List<Task> listTasks() {
         return asList();
     }
 
     /** Returns tasks whose descriptions contain the supplied keyword. */
-    public ArrayList<Task> findTasks(String keyword) {
+    public List<Task> findTasks(String keyword) {
         String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
         ArrayList<Task> matches = new ArrayList<>();
         for (Task task : tasks) {
@@ -288,7 +289,7 @@ public class TaskList {
         return formatTasks("Here are the matching tasks in your list:", findTasks(keyword));
     }
 
-    private String formatTasks(String heading, ArrayList<Task> tasksToFormat) {
+    private String formatTasks(String heading, List<Task> tasksToFormat) {
         StringBuilder response = new StringBuilder(heading);
         for (int i = 0; i < tasksToFormat.size(); i++) {
             response.append(System.lineSeparator()).append(i + 1).append(".").append(tasksToFormat.get(i));

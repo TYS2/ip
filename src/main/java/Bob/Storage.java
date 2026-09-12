@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 /** Loads and saves tasks from the application's data file. */
 public class Storage {
@@ -28,7 +29,7 @@ public class Storage {
      *         not exist.
      * @throws BobException if the file cannot be read.
      */
-    public ArrayList<Task> load() throws BobException {
+    public List<Task> load() throws BobException {
         ArrayList<Task> tasks = new ArrayList<>();
 
         if (!Files.exists(file)) {
@@ -121,7 +122,7 @@ public class Storage {
      * @param tasks tasks to save.
      * @throws BobException if the directory or file cannot be written.
      */
-    public void save(ArrayList<Task> tasks) throws BobException {
+    public void save(List<Task> tasks) throws BobException {
         ArrayList<String> lines = new ArrayList<>();
         for (Task task : tasks) {
             lines.add(task.toStorageString());
