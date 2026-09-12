@@ -177,18 +177,9 @@ public class TaskList {
      * @throws BobException If the input is invalid.
      */
     public Task addDeadline(String input) throws BobException {
-        String[] parts = input.split(" /by ", 2);
-        if (parts.length < 2) {
-            throw new BobException("A deadline needs a description and a /by date.");
-        }
-        String description = parts[0].trim();
-        String end = parts[1].trim();
-        if (description.isEmpty()) {
-            throw new BobException("The deadline description cannot be empty.");
-        }
-        if (end.isEmpty()) {
-            throw new BobException("The deadline date cannot be empty.");
-        }
+        String[] parts = validateDeadlineInput(input);
+        String description = parts[0];
+        String end = parts[1];
         try {
             Task task = new Deadline(description, LocalDate.parse(end));
             add(task);
@@ -263,6 +254,22 @@ public class TaskList {
             default:
                 throw new BobException("I don't understand that command.");
         }
+    }
+
+    private String[] validateDeadlineInput(String input) throws BobException {
+        String[] parts = input.split(" /by ", 2);
+        if (parts.length < 2) {
+            throw new BobException("A deadline needs a description and a /by date.");
+        }
+        String description = parts[0].trim();
+        String end = parts[1].trim();
+        if (description.isEmpty()) {
+            throw new BobException("The deadline description cannot be empty.");
+        }
+        if (end.isEmpty()) {
+            throw new BobException("The deadline date cannot be empty.");
+        }
+        return new String[] {description, end};
     }
 
     private String findAndFormatTasks(String command) throws BobException {
