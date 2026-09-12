@@ -22,6 +22,7 @@ public class TaskList {
      * @param tasks Tasks to copy.
      */
     public TaskList(ArrayList<Task> tasks) {
+        assert tasks != null : "The initial task collection must exist";
         this.tasks = new ArrayList<>(tasks);
     }
 
@@ -41,6 +42,7 @@ public class TaskList {
      * @param task Task to add.
      */
     public void add(Task task) {
+        assert task != null : "A task list must not contain null tasks";
         tasks.add(task);
     }
 
@@ -73,6 +75,8 @@ public class TaskList {
         if (taskNumber < 1 || taskNumber > tasks.size()) {
             throw new BobException("That task number does not exist.");
         }
+        assert taskNumber - 1 >= 0 && taskNumber - 1 < tasks.size()
+                : "A validated task number must map to a list index";
     }
 
     /**
@@ -235,6 +239,9 @@ public class TaskList {
      */
     public String execute(String command, CommandType type, Storage storage)
             throws BobException {
+        assert command != null : "A command is required for execution";
+        assert type != null : "A command must have a parsed type";
+        assert storage != null : "Command execution requires storage";
         StringBuilder response = new StringBuilder();
         switch (type) {
             case LIST:

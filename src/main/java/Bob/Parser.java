@@ -19,6 +19,7 @@ public class Parser {
      * @return Command type represented by the command keyword.
      */
     public CommandType parse(String command) {
+        assert command != null : "The parser expects a command string";
         String keyword = command.split(" ", 2)[0];
 
         switch (keyword) {
