@@ -2,9 +2,9 @@ package bob;
 
 /** Coordinates the task manager components. */
 public class Bob {
-    private Storage storage;
+    private final Storage storage;
     private TaskList tasks;
-    private Parser parser;
+    private final Parser parser;
     private String initializationError;
 
     /**
