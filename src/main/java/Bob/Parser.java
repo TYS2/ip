@@ -29,6 +29,8 @@ public class Parser {
                 return CommandType.LIST;
             case "find":
                 return CommandType.FIND;
+            case "edit":
+                return CommandType.EDIT;
             case "delete":
                 return CommandType.DELETE;
             case "mark":

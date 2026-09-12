@@ -27,6 +27,12 @@ public class ParserTest {
         assertEquals(CommandType.FIND, parser.parse("find book"));
     }
 
+    @Test
+    public void parse_edit_returnsEdit() {
+        Parser parser = new Parser();
+        assertEquals(CommandType.EDIT, parser.parse("edit 1 New description"));
+    }
+
     @DisplayName("Test for creating a deadline task")
     @Test
     public void testAddDeadlineTask() throws BobException {

@@ -10,6 +10,7 @@ import java.util.List;
 public class TaskList {
     private static final int TODO_PREFIX_LENGTH = 4;
     private static final int FIND_PREFIX_LENGTH = 4;
+    private static final int EDIT_PREFIX_LENGTH = 4;
     private static final int DELETE_PREFIX_LENGTH = 6;
     private static final int MARK_PREFIX_LENGTH = 4;
     private static final int UNMARK_PREFIX_LENGTH = 6;
@@ -159,6 +160,41 @@ public class TaskList {
     }
 
     /**
+     * Replaces a task's details while retaining its task type and completion state.
+     *
+     * @param taskNumber One-based task number.
+     * @param input New task details in the format for the existing task type.
+     * @return Updated task.
+     * @throws BobException If the task number or new details are invalid.
+     */
+    public Task editTask(int taskNumber, String input) throws BobException {
+        checkTaskNumber(taskNumber);
+        if (input == null || input.trim().isEmpty()) {
+            throw new BobException("Please provide the new task details.");
+        }
+
+        Task original = get(taskNumber - 1);
+        Task updated;
+        if (original instanceof Deadline) {
+            updated = createDeadline(input);
+        } else if (original instanceof Event) {
+            updated = createEvent(input);
+        } else {
+            String description = input.trim();
+            if (description.isEmpty()) {
+                throw new BobException("The description of a todo cannot be empty.");
+            }
+            updated = new Task(description);
+        }
+
+        if (original.getDone()) {
+            updated.markDone();
+        }
+        tasks.set(taskNumber - 1, updated);
+        return updated;
+    }
+
+    /**
      * Creates and adds a todo task.
      *
      * @param description Todo description.
@@ -236,6 +272,8 @@ public class TaskList {
                 return formatTasks("Here are the tasks in your list:", listTasks());
             case FIND:
                 return findAndFormatTasks(command);
+            case EDIT:
+                return editAndFormatTask(command, storage);
             case DELETE:
                 return deleteAndFormatTask(command, storage);
             case MARK:
@@ -311,6 +349,37 @@ public class TaskList {
         return "Noted. I've removed this task:" + System.lineSeparator()
                 + "  " + deleted + System.lineSeparator()
                 + "Now you have " + size() + " tasks in the list.";
+    }
+
+    private Task createDeadline(String input) throws BobException {
+        String[] parts = validateDeadlineInput(input);
+        try {
+            return new Deadline(parts[0], LocalDate.parse(parts[1]));
+        } catch (DateTimeParseException e) {
+            throw new BobException("Please enter the date as yyyy-MM-dd, "
+                    + "for example 2019-10-15.");
+        }
+    }
+
+    private Task createEvent(String input) throws BobException {
+        String[] parts = validateEventInput(input);
+        try {
+            return new Event(parts[0], LocalDate.parse(parts[1]), LocalDate.parse(parts[2]));
+        } catch (DateTimeParseException e) {
+            throw new BobException("Please enter dates as yyyy-MM-dd, "
+                    + "for example 2019-10-15.");
+        }
+    }
+
+    private String editAndFormatTask(String command, Storage storage) throws BobException {
+        String[] parts = command.substring(EDIT_PREFIX_LENGTH).trim().split(" ", 2);
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new BobException("Usage: edit TASK_NUMBER NEW_DETAILS");
+        }
+        Task updated = editTask(Integer.parseInt(parts[0]), parts[1].trim());
+        storage.save(asList());
+        return "Got it. I've updated this task:" + System.lineSeparator()
+                + "  " + updated;
     }
 
     private String markAndFormatTask(String command, Storage storage) throws BobException {
