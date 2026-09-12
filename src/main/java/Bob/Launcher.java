@@ -1,3 +1,5 @@
+package bob;
+
 import javafx.application.Application;
 
 /**

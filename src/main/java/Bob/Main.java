@@ -1,3 +1,5 @@
+package bob;
+
 import java.io.IOException;
 
 import bob.Bob;
