@@ -71,45 +71,45 @@ public class Storage {
             return null;
         }
 
-        Task task;
-        switch (type) {
-            case "T":
-                task = new Task(description);
-                break;
-            case "D":
-                if (parts.length < 4 || parts[3].trim().isEmpty()) {
-                    return null;
-                }
+        Task task = switch (type) {
+            case "T" -> new Task(description);
+            case "D" -> parseDeadline(parts, description);
+            case "E" -> parseEvent(parts, description);
+            default -> null;
+        };
+        return restoreCompletionState(task, parts[1]);
+    }
 
-                try {
-                    task = new Deadline(
-                            description,
-                            LocalDate.parse(parts[3].trim()));
-                } catch (DateTimeParseException e) {
-                    return null;
-                }
-                break;
-
-            case "E":
-                if (parts.length < 5 || parts[3].trim().isEmpty()
-                        || parts[4].trim().isEmpty()) {
-                    return null;
-                }
-
-                try {
-                    task = new Event(
-                            description,
-                            LocalDate.parse(parts[3].trim()),
-                            LocalDate.parse(parts[4].trim()));
-                } catch (DateTimeParseException e) {
-                    return null;
-                }
-                break;
-            default:
-                return null;
+    private static Task parseDeadline(String[] parts, String description) {
+        if (parts.length < 4 || parts[3].trim().isEmpty()) {
+            return null;
         }
 
-        if (parts[1].equals("1")) {
+        try {
+            return new Deadline(description, LocalDate.parse(parts[3].trim()));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static Task parseEvent(String[] parts, String description) {
+        if (parts.length < 5 || parts[3].trim().isEmpty()
+                || parts[4].trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return new Event(
+                    description,
+                    LocalDate.parse(parts[3].trim()),
+                    LocalDate.parse(parts[4].trim()));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static Task restoreCompletionState(Task task, String completionFlag) {
+        if (task != null && completionFlag.equals("1")) {
             task.markDone();
         }
         return task;
