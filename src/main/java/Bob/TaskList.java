@@ -198,22 +198,10 @@ public class TaskList {
      * @throws BobException If the input is invalid.
      */
     public Task addEvent(String input) throws BobException {
-        String[] parts = input.split(" /from | /to ", 3);
-        if (parts.length < 3) {
-            throw new BobException("An event needs a description, /from, and /to.");
-        }
-        String description = parts[0].trim();
-        String from = parts[1].trim();
-        String to = parts[2].trim();
-        if (description.isEmpty()) {
-            throw new BobException("The event description cannot be empty.");
-        }
-        if (from.isEmpty()) {
-            throw new BobException("The event start time cannot be empty.");
-        }
-        if (to.isEmpty()) {
-            throw new BobException("The event end time cannot be empty.");
-        }
+        String[] parts = validateEventInput(input);
+        String description = parts[0];
+        String from = parts[1];
+        String to = parts[2];
         try {
             Task task = new Event(description, LocalDate.parse(from), LocalDate.parse(to));
             add(task);
@@ -254,6 +242,26 @@ public class TaskList {
             default:
                 throw new BobException("I don't understand that command.");
         }
+    }
+
+    private String[] validateEventInput(String input) throws BobException {
+        String[] parts = input.split(" /from | /to ", 3);
+        if (parts.length < 3) {
+            throw new BobException("An event needs a description, /from, and /to.");
+        }
+        String description = parts[0].trim();
+        String from = parts[1].trim();
+        String to = parts[2].trim();
+        if (description.isEmpty()) {
+            throw new BobException("The event description cannot be empty.");
+        }
+        if (from.isEmpty()) {
+            throw new BobException("The event start time cannot be empty.");
+        }
+        if (to.isEmpty()) {
+            throw new BobException("The event end time cannot be empty.");
+        }
+        return new String[] {description, from, to};
     }
 
     private String[] validateDeadlineInput(String input) throws BobException {
