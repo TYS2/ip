@@ -19,8 +19,10 @@ public class Parser {
      * @return Command type represented by the command keyword.
      */
     public CommandType parse(String command) {
-        assert command != null : "The parser expects a command string";
-        String keyword = command.split(" ", 2)[0];
+        if (command == null || command.trim().isEmpty()) {
+            return CommandType.UNKNOWN;
+        }
+        String keyword = command.trim().split("\\s+", 2)[0];
 
         switch (keyword) {
             case "bye":
@@ -56,6 +58,9 @@ public class Parser {
      * @throws BobException If the input has an unsupported or invalid format.
      */
     public static LocalDateTime parseDateTime(String input) throws BobException {
+        if (input == null || input.trim().isEmpty()) {
+            throw new BobException("Please enter a date and time.");
+        }
         for (DateTimeFormatter formatter : INPUT_FORMATS) {
             try {
                 return LocalDateTime.parse(input.trim(), formatter);

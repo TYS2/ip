@@ -35,13 +35,22 @@ public class Storage {
         if (!Files.exists(file)) {
             return tasks;
         }
+        if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
+            throw new BobException("I couldn't read your task file.");
+        }
 
         try {
+            int lineNumber = 0;
             for (String line : Files.readAllLines(file)) {
+                lineNumber++;
                 Task task = parseTask(line);
-                if (task != null) {
-                    tasks.add(task);
+                if (task == null) {
+                    throw new BobException("Your task file has invalid data on line " + lineNumber + ".");
                 }
+                if (tasks.stream().anyMatch(existing -> existing.toStorageString().equals(task.toStorageString()))) {
+                    throw new BobException("Your task file contains duplicate tasks.");
+                }
+                tasks.add(task);
             }
         } catch (NoSuchFileException e) {
             // The file may have been removed after the existence check.
@@ -124,10 +133,14 @@ public class Storage {
      * @throws BobException if the directory or file cannot be written.
      */
     public void save(List<Task> tasks) throws BobException {
-        assert tasks != null : "Storage requires a task collection to save";
+        if (tasks == null) {
+            throw new BobException("There are no tasks to save.");
+        }
         ArrayList<String> lines = new ArrayList<>();
         for (Task task : tasks) {
-            assert task != null : "The task collection must not contain null tasks";
+            if (task == null) {
+                throw new BobException("The task list contains invalid data.");
+            }
             lines.add(task.toStorageString());
         }
 
