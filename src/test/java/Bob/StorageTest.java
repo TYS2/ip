@@ -38,7 +38,7 @@ public class StorageTest {
 
         assertEquals(original.stream().map(Task::toStorageString).toList(),
                 loaded.stream().map(Task::toStorageString).toList());
-        assertTrue(loaded.get(0).getDone());
+        assertTrue(loaded.get(0).isDone());
     }
 
     @Test

@@ -11,7 +11,7 @@ public class Task {
     /** The task description shown to the user. */
     private final String item;
     /** Whether the task has been marked as completed. */
-    private boolean done;
+    private boolean isDone;
 
     /**
      * Creates an incomplete task with the given description.
@@ -23,21 +23,21 @@ public class Task {
             throw new IllegalArgumentException("A task must have a description");
         }
         this.item = item.trim();
-        this.done = false;
+        this.isDone = false;
     }
 
     /**
      * Marks this task as completed.
      */
     public void markDone() {
-        this.done = true;
+        this.isDone = true;
     }
 
     /**
      * Marks this task as incomplete.
      */
     public void markUndone() {
-        this.done = false;
+        this.isDone = false;
     }
 
     /**
@@ -45,8 +45,8 @@ public class Task {
      *
      * @return Whether this task is completed.
      */
-    public boolean getDone() {
-        return this.done;
+    public boolean isDone() {
+        return this.isDone;
     }
 
     /**
@@ -64,7 +64,7 @@ public class Task {
      * @return Storage line.
      */
     public String toStorageString() {
-        return TODO_TYPE + " | " + (done ? COMPLETE_FLAG : "0") + " | " + item;
+        return TODO_TYPE + " | " + (isDone ? COMPLETE_FLAG : "0") + " | " + item;
     }
 
     /**
@@ -74,6 +74,6 @@ public class Task {
      */
     @Override
     public String toString() {
-        return "[T][" + (done ? "X" : " ") + "] " + item;
+        return "[T][" + (isDone ? "X" : " ") + "] " + item;
     }
 }

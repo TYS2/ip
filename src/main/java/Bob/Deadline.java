@@ -32,7 +32,7 @@ public class Deadline extends Task {
     @Override
     public String toStorageString() {
         // LocalDateTime.toString() uses a stable ISO representation.
-        return DEADLINE_TYPE + " | " + (getDone() ? COMPLETE_FLAG : "0") + " | "
+        return DEADLINE_TYPE + " | " + (isDone() ? COMPLETE_FLAG : "0") + " | "
                 + getItem() + " | " + end;
     }
 
@@ -43,7 +43,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        return "[D][" + (getDone() ? "X" : " ") + "] "
+        return "[D][" + (isDone() ? "X" : " ") + "] "
                 + getItem() + " (by: " + end.format(DISPLAY_FORMAT) + ")";
     }
 }

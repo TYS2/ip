@@ -37,7 +37,7 @@ public class Event extends Task {
      */
     @Override
     public String toStorageString() {
-        return EVENT_TYPE + " | " + (getDone() ? COMPLETE_FLAG : "0") + " | " + getItem()
+        return EVENT_TYPE + " | " + (isDone() ? COMPLETE_FLAG : "0") + " | " + getItem()
                 + " | " + from + " | " + to;
     }
 
@@ -48,7 +48,7 @@ public class Event extends Task {
      */
     @Override
     public String toString() {
-        return "[E][" + (getDone() ? "X" : " ") + "] " + getItem()
+        return "[E][" + (isDone() ? "X" : " ") + "] " + getItem()
                 + " (from: " + from.format(DISPLAY_FORMAT)
                 + " to: " + to.format(DISPLAY_FORMAT) + ")";
     }

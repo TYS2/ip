@@ -22,16 +22,16 @@ public class TaskTest {
         Task task = new Task("  Buy milk  ");
 
         assertEquals("Buy milk", task.getItem());
-        assertFalse(task.getDone());
+        assertFalse(task.isDone());
         assertEquals("T | 0 | Buy milk", task.toStorageString());
 
         task.markDone();
-        assertTrue(task.getDone());
+        assertTrue(task.isDone());
         assertEquals("[T][X] Buy milk", task.toString());
         assertEquals("T | 1 | Buy milk", task.toStorageString());
 
         task.markUndone();
-        assertFalse(task.getDone());
+        assertFalse(task.isDone());
     }
 
     @Test

@@ -3,8 +3,8 @@ package bob;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.List;
+import java.util.Locale;
 
 /** Owns the tasks currently managed by the application. */
 public class TaskList {
@@ -194,7 +194,7 @@ public class TaskList {
             updated = new Task(description);
         }
 
-        if (original.getDone()) {
+        if (original.isDone()) {
             updated.markDone();
         }
         tasks.set(taskNumber - 1, updated);
