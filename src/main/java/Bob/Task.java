@@ -19,8 +19,10 @@ public class Task {
      * @param item Task description.
      */
     public Task(String item) {
-        assert item != null && !item.isEmpty() : "A task must have a description";
-        this.item = item;
+        if (item == null || item.trim().isEmpty()) {
+            throw new IllegalArgumentException("A task must have a description");
+        }
+        this.item = item.trim();
         this.done = false;
     }
 

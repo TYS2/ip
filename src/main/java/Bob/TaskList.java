@@ -10,6 +10,7 @@ import java.util.List;
 public class TaskList {
     private static final int TODO_PREFIX_LENGTH = 4;
     private static final int FIND_PREFIX_LENGTH = 4;
+    private static final int EDIT_PREFIX_LENGTH = 4;
     private static final int DELETE_PREFIX_LENGTH = 6;
     private static final int MARK_PREFIX_LENGTH = 4;
     private static final int UNMARK_PREFIX_LENGTH = 6;
@@ -51,7 +52,14 @@ public class TaskList {
      * @param task Task to add.
      */
     public void add(Task task) {
-        assert task != null : "A task list must not contain null tasks";
+        if (task == null) {
+            throw new IllegalArgumentException("A task list must not contain null tasks");
+        }
+        for (Task existing : tasks) {
+            if (existing.toStorageString().equals(task.toStorageString())) {
+                throw new IllegalArgumentException("A task with those details already exists");
+            }
+        }
         tasks.add(task);
     }
 
@@ -159,6 +167,41 @@ public class TaskList {
     }
 
     /**
+     * Replaces a task's details while retaining its task type and completion state.
+     *
+     * @param taskNumber One-based task number.
+     * @param input New task details in the format for the existing task type.
+     * @return Updated task.
+     * @throws BobException If the task number or new details are invalid.
+     */
+    public Task editTask(int taskNumber, String input) throws BobException {
+        checkTaskNumber(taskNumber);
+        if (input == null || input.trim().isEmpty()) {
+            throw new BobException("Please provide the new task details.");
+        }
+
+        Task original = get(taskNumber - 1);
+        Task updated;
+        if (original instanceof Deadline) {
+            updated = createDeadline(input);
+        } else if (original instanceof Event) {
+            updated = createEvent(input);
+        } else {
+            String description = input.trim();
+            if (description.isEmpty()) {
+                throw new BobException("The description of a todo cannot be empty.");
+            }
+            updated = new Task(description);
+        }
+
+        if (original.getDone()) {
+            updated.markDone();
+        }
+        tasks.set(taskNumber - 1, updated);
+        return updated;
+    }
+
+    /**
      * Creates and adds a todo task.
      *
      * @param description Todo description.
@@ -166,11 +209,11 @@ public class TaskList {
      * @throws BobException If the description is empty.
      */
     public Task addTodo(String description) throws BobException {
-        if (description.isEmpty()) {
+        if (description == null || description.trim().isEmpty()) {
             throw new BobException("The description of a todo cannot be empty.");
         }
-        Task task = new Task(description);
-        add(task);
+        Task task = new Task(description.trim());
+        addUnique(task);
         return task;
     }
 
@@ -187,7 +230,7 @@ public class TaskList {
         String end = parts[1];
         try {
             Task task = new Deadline(description, LocalDate.parse(end));
-            add(task);
+            addUnique(task);
             return task;
         } catch (DateTimeParseException e) {
             throw new BobException("Please enter the date as yyyy-MM-dd, "
@@ -209,7 +252,7 @@ public class TaskList {
         String to = parts[2];
         try {
             Task task = new Event(description, LocalDate.parse(from), LocalDate.parse(to));
-            add(task);
+            addUnique(task);
             return task;
         } catch (DateTimeParseException e) {
             throw new BobException("Please enter dates as yyyy-MM-dd, "
@@ -227,15 +270,21 @@ public class TaskList {
      */
     public String execute(String command, CommandType type, Storage storage)
             throws BobException {
-        assert command != null : "A command is required for execution";
-        assert type != null : "A command must have a parsed type";
-        assert storage != null : "Command execution requires storage";
+        if (command == null || command.trim().isEmpty()) {
+            throw new BobException("Please enter a command.");
+        }
+        command = command.trim();
+        if (type == null || storage == null) {
+            throw new BobException("The command could not be processed.");
+        }
         StringBuilder response = new StringBuilder();
         switch (type) {
             case LIST:
                 return formatTasks("Here are the tasks in your list:", listTasks());
             case FIND:
                 return findAndFormatTasks(command);
+            case EDIT:
+                return editAndFormatTask(command, storage);
             case DELETE:
                 return deleteAndFormatTask(command, storage);
             case MARK:
@@ -254,7 +303,13 @@ public class TaskList {
     }
 
     private String[] validateEventInput(String input) throws BobException {
-        String[] parts = input.split(" /from | /to ", 3);
+        if (input == null) {
+            throw new BobException("An event needs a description, /from, and /to.");
+        }
+        if (countOccurrences(input, " /from ") != 1 || countOccurrences(input, " /to ") != 1) {
+            throw new BobException("An event needs exactly one /from and one /to.");
+        }
+        String[] parts = input.split("\\s+/from\\s+|\\s+/to\\s+", 3);
         if (parts.length < 3) {
             throw new BobException("An event needs a description, /from, and /to.");
         }
@@ -274,7 +329,10 @@ public class TaskList {
     }
 
     private String[] validateDeadlineInput(String input) throws BobException {
-        String[] parts = input.split(" /by ", 2);
+        if (input == null || countOccurrences(input, " /by ") != 1) {
+            throw new BobException("A deadline needs exactly one /by date.");
+        }
+        String[] parts = input.split("\\s+/by\\s+", 2);
         if (parts.length < 2) {
             throw new BobException("A deadline needs a description and a /by date.");
         }
@@ -306,22 +364,53 @@ public class TaskList {
     }
 
     private String deleteAndFormatTask(String command, Storage storage) throws BobException {
-        Task deleted = deleteTask(Integer.parseInt(command.substring(DELETE_PREFIX_LENGTH).trim()));
+        Task deleted = deleteTask(parseTaskNumber(command, DELETE_PREFIX_LENGTH));
         storage.save(asList());
         return "Noted. I've removed this task:" + System.lineSeparator()
                 + "  " + deleted + System.lineSeparator()
                 + "Now you have " + size() + " tasks in the list.";
     }
 
+    private Task createDeadline(String input) throws BobException {
+        String[] parts = validateDeadlineInput(input);
+        try {
+            return new Deadline(parts[0], LocalDate.parse(parts[1]));
+        } catch (DateTimeParseException e) {
+            throw new BobException("Please enter the date as yyyy-MM-dd, "
+                    + "for example 2019-10-15.");
+        }
+    }
+
+    private Task createEvent(String input) throws BobException {
+        String[] parts = validateEventInput(input);
+        try {
+            return new Event(parts[0], LocalDate.parse(parts[1]), LocalDate.parse(parts[2]));
+        } catch (DateTimeParseException e) {
+            throw new BobException("Please enter dates as yyyy-MM-dd, "
+                    + "for example 2019-10-15.");
+        }
+    }
+
+    private String editAndFormatTask(String command, Storage storage) throws BobException {
+        String[] parts = command.substring(EDIT_PREFIX_LENGTH).trim().split("\\s+", 2);
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new BobException("Usage: edit TASK_NUMBER NEW_DETAILS");
+        }
+        Task updated = editTask(parseTaskNumber(parts[0], 0), parts[1].trim());
+        storage.save(asList());
+        return "Got it. I've updated this task:" + System.lineSeparator()
+                + "  " + updated;
+    }
+
     private String markAndFormatTask(String command, Storage storage) throws BobException {
-        Task marked = markTask(Integer.parseInt(command.substring(MARK_PREFIX_LENGTH).trim()));
+        Task marked = markTask(parseTaskNumber(command, MARK_PREFIX_LENGTH));
         storage.save(asList());
         return "Nice! I've marked this task as done:" + System.lineSeparator()
                 + "  " + marked;
     }
 
     private String unmarkAndFormatTask(String command, Storage storage) throws BobException {
-        Task unmarked = unmarkTask(Integer.parseInt(command.substring(UNMARK_PREFIX_LENGTH).trim()));
+        Task unmarked = unmarkTask(parseTaskNumber(command, UNMARK_PREFIX_LENGTH));
         storage.save(asList());
         return "OK, I've marked this task as not done yet:" + System.lineSeparator()
                 + "  " + unmarked;
@@ -339,5 +428,35 @@ public class TaskList {
         return "Got it. I've added this task:" + System.lineSeparator()
                 + "  " + task + System.lineSeparator()
                 + "Now you have " + size() + " tasks in the list.";
+    }
+
+    private void addUnique(Task task) throws BobException {
+        try {
+            add(task);
+        } catch (IllegalArgumentException e) {
+            throw new BobException("A task with those details already exists.");
+        }
+    }
+
+    private int parseTaskNumber(String input, int prefixLength) throws BobException {
+        String value = input.substring(prefixLength).trim();
+        if (!value.matches("\\d+")) {
+            throw new BobException("Please enter a valid task number.");
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new BobException("Please enter a valid task number.");
+        }
+    }
+
+    private int countOccurrences(String input, String marker) {
+        int count = 0;
+        int index = 0;
+        while ((index = input.indexOf(marker, index)) >= 0) {
+            count++;
+            index += marker.length();
+        }
+        return count;
     }
 }

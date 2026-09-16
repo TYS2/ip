@@ -37,8 +37,8 @@ public class Bob {
             }
         } catch (BobException e) {
             return "OOPS!!! " + e.getMessage();
-        } catch (NumberFormatException e) {
-            return "OOPS!!! Please enter a valid task number.";
+        } catch (RuntimeException e) {
+            return "OOPS!!! I couldn't process that command. Please check its format.";
         }
     }
 }

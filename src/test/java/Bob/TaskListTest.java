@@ -67,4 +67,22 @@ public class TaskListTest {
         assertEquals("Read a book", taskList.findTasks("book").get(0).getItem());
         assertEquals("Return the BOOK", taskList.findTasks("book").get(1).getItem());
     }
+
+    @Test
+    @DisplayName("Editing each task type updates its details and preserves completion")
+    public void editTask_allTaskTypes_updatesDetails() throws BobException {
+        TaskList taskList = new TaskList();
+        taskList.addTodo("Old todo");
+        taskList.addDeadline("Old deadline /by 2026-09-01");
+        taskList.addEvent("Old event /from 2026-09-01 /to 2026-09-02");
+        taskList.markTask(2);
+
+        Task todo = taskList.editTask(1, "New todo");
+        Task deadline = taskList.editTask(2, "New deadline /by 2026-10-01");
+        Task event = taskList.editTask(3, "New event /from 2026-10-03 /to 2026-10-04");
+
+        assertEquals("New todo", todo.getItem());
+        assertEquals("[D][X] New deadline (by: Oct 01 2026)", deadline.toString());
+        assertEquals("[E][ ] New event (from: Oct 03 2026 to: Oct 04 2026)", event.toString());
+    }
 }
