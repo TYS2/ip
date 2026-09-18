@@ -1,13 +1,9 @@
 package bob;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-/** A task representing an event with a start and end time. */
+/** A task representing an event with a start and end date. */
 public class Event extends Task {
-    private static final DateTimeFormatter DISPLAY_FORMAT =
-            DateTimeFormatter.ofPattern("MMM dd yyyy");
-
     private final LocalDate from;
     private final LocalDate to;
 
@@ -49,7 +45,7 @@ public class Event extends Task {
     @Override
     public String toString() {
         return "[E][" + (isDone() ? "X" : " ") + "] " + getItem()
-                + " (from: " + from.format(DISPLAY_FORMAT)
-                + " to: " + to.format(DISPLAY_FORMAT) + ")";
+                + " (from: " + from.format(DateFormats.DISPLAY_DATE)
+                + " to: " + to.format(DateFormats.DISPLAY_DATE) + ")";
     }
 }

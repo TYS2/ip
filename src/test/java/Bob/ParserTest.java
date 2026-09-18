@@ -2,10 +2,11 @@ package bob;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 
 public class ParserTest {
     @Test
@@ -48,13 +49,13 @@ public class ParserTest {
 
     @DisplayName("Test for parsing the list command")
     @Test
-    public void testCheckForListCommand() {
+    public void parse_listCommand_returnsList() {
         Parser parser = new Parser();
         assertEquals(CommandType.LIST, parser.parse("list"));
     }
 
     @Test
-    public void testCheckForFindCommand() {
+    public void parse_findCommand_returnsFind() {
         Parser parser = new Parser();
         assertEquals(CommandType.FIND, parser.parse("find book"));
     }
@@ -67,7 +68,7 @@ public class ParserTest {
 
     @DisplayName("Test for creating a deadline task")
     @Test
-    public void testAddDeadlineTask() throws BobException {
+    public void addDeadline_validInput_returnsDeadline() throws BobException {
         TaskList taskList = new TaskList();
 
         Task deadline = taskList.addDeadline("Submit report /by 2026-09-01");

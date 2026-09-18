@@ -273,30 +273,29 @@ public class TaskList {
         if (command == null || command.trim().isEmpty()) {
             throw new BobException("Please enter a command.");
         }
-        command = command.trim();
+        String normalizedCommand = command.trim();
         if (type == null || storage == null) {
             throw new BobException("The command could not be processed.");
         }
-        StringBuilder response = new StringBuilder();
         switch (type) {
             case LIST:
                 return formatTasks("Here are the tasks in your list:", listTasks());
             case FIND:
-                return findAndFormatTasks(command);
+                return findAndFormatTasks(normalizedCommand);
             case EDIT:
-                return editAndFormatTask(command, storage);
+                return editAndFormatTask(normalizedCommand, storage);
             case DELETE:
-                return deleteAndFormatTask(command, storage);
+                return deleteAndFormatTask(normalizedCommand, storage);
             case MARK:
-                return markAndFormatTask(command, storage);
+                return markAndFormatTask(normalizedCommand, storage);
             case UNMARK:
-                return unmarkAndFormatTask(command, storage);
+                return unmarkAndFormatTask(normalizedCommand, storage);
             case TODO:
-                return showAdded(addTodo(command.substring(TODO_PREFIX_LENGTH).trim()), storage);
+                return showAdded(addTodo(normalizedCommand.substring(TODO_PREFIX_LENGTH).trim()), storage);
             case DEADLINE:
-                return showAdded(addDeadline(command.substring(DEADLINE_PREFIX_LENGTH).trim()), storage);
+                return showAdded(addDeadline(normalizedCommand.substring(DEADLINE_PREFIX_LENGTH).trim()), storage);
             case EVENT:
-                return showAdded(addEvent(command.substring(EVENT_PREFIX_LENGTH).trim()), storage);
+                return showAdded(addEvent(normalizedCommand.substring(EVENT_PREFIX_LENGTH).trim()), storage);
             default:
                 throw new BobException("I don't understand that command.");
         }

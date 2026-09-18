@@ -1,14 +1,12 @@
 package bob;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+/** Tests task-list operations and command execution. */
 public class TaskListTest {
     @Test
     @DisplayName("Adding a todo increases the task count and stores its description")

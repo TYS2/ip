@@ -1,13 +1,9 @@
 package bob;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-/** A task that must be completed by a specified date and time. */
+/** A task that must be completed by a specified date. */
 public class Deadline extends Task {
-    private static final DateTimeFormatter DISPLAY_FORMAT =
-            DateTimeFormatter.ofPattern("MMM dd yyyy");
-
     private final LocalDate end;
 
     /**
@@ -31,7 +27,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toStorageString() {
-        // LocalDateTime.toString() uses a stable ISO representation.
+        // LocalDate.toString() uses a stable ISO representation.
         return DEADLINE_TYPE + " | " + (isDone() ? COMPLETE_FLAG : "0") + " | "
                 + getItem() + " | " + end;
     }
@@ -44,6 +40,6 @@ public class Deadline extends Task {
     @Override
     public String toString() {
         return "[D][" + (isDone() ? "X" : " ") + "] "
-                + getItem() + " (by: " + end.format(DISPLAY_FORMAT) + ")";
+                + getItem() + " (by: " + end.format(DateFormats.DISPLAY_DATE) + ")";
     }
 }
