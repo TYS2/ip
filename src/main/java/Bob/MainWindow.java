@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 /**
  * Controller for the main GUI.
@@ -52,5 +53,9 @@ public class MainWindow extends AnchorPane {
         String response = bob.getResponse(input);
         dialogContainer.getChildren().add(DialogBox.getBobDialog(response, bobImage));
         userInput.clear();
+        if (new Parser().parse(input) == CommandType.BYE) {
+            Window window = userInput.getScene().getWindow();
+            window.hide();
+        }
     }
 }
