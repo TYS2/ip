@@ -24,7 +24,7 @@ public class MainWindow extends AnchorPane {
     private Bob bob;
 
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
+    private Image bobImage = new Image(this.getClass().getResourceAsStream("/images/DaBob.png"));
 
     /** Initializes the dialog pane's scroll behavior. */
     @FXML
@@ -50,7 +50,7 @@ public class MainWindow extends AnchorPane {
         String input = userInput.getText();
         dialogContainer.getChildren().add(DialogBox.getUserDialog(input, userImage));
         String response = bob.getResponse(input);
-        dialogContainer.getChildren().add(DialogBox.getBobDialog(response, dukeImage));
+        dialogContainer.getChildren().add(DialogBox.getBobDialog(response, bobImage));
         userInput.clear();
     }
 }

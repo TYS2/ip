@@ -13,7 +13,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
-    private final Bob bob = new Bob("data/duke.txt");
+    private final Bob bob = new Bob("data/bob.txt");
 
     @Override
     public void start(Stage stage) {
